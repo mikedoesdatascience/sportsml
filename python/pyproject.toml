@@ -33,3 +33,4 @@ dependencies = [
 
 [project.scripts]
 nba_mongo_upload = "sportsml.nba.data.download:mongo_upload"
+nfl_mongo_upload = "sportsml.nfl.data.download:mongo_upload"
