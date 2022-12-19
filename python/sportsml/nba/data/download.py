@@ -4,6 +4,7 @@ import time
 import tqdm
 from nba_api.stats.static import teams
 from nba_api.stats.endpoints import leaguegamefinder
+from pymongo import ReplaceOne
 
 from .utils import process_games
 from ...mongo import client
@@ -21,7 +22,6 @@ def download_games():
 def mongo_upload():
     games = download_games()
     games = process_games(games)
-    games = games.drop(columns="Unnamed: 0")
     games["_id"] = games[["GAME_ID", "TEAM_ID"]].agg(
         lambda x: ".".join(map(str, x)), axis=1
     )
