@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sportsml"
+version = "0.0.1"
+description = "ML for sports"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT license"}
+dependencies = [
+    "captum",
+    "dgl",
+    "dgllife",
+    "hydra-core",
+    "nba_api",
+    "neo4j",
+    "networkx",
+    "numpy",
+    "mlflow",
+    "pandas",
+    "py2neo",
+    "pyarrow",
+    "pymongo[srv]",
+    "pytorch_lightning",
+    "seaborn",
+    "sklearn",
+    "torch",
+    "torchmetrics",
+    "typer"
+]
