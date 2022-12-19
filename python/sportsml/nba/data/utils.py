@@ -49,5 +49,5 @@ def process_games(games: pd.DataFrame):
 def process_averages(games):
     games = games.sort_values('GAME_DATE')
     avg = games.copy().drop(STATS_COLUMNS+OPP_STATS_COLUMNS, axis=1)
-    avg_stats = games.groupby(['SEASON_ID', 'TEAM_ABBREVIATION'])[STATS_COLUMNS + OPP_STATS_COLUMNS].expanding().mean().shift(1).droplevel([0, 1])
+    avg_stats = games.groupby(['SEASON_ID', 'TEAM_ABBREVIATION'])[STATS_COLUMNS + OPP_STATS_COLUMNS].expanding().mean().groupby(['SEASON_ID', 'TEAM_ABBREVIATION']).shift(1).droplevel([0, 1])
     return avg.merge(avg_stats, left_index=True, right_index=True)
