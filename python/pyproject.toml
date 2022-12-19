@@ -30,3 +30,6 @@ dependencies = [
     "torchmetrics",
     "typer"
 ]
+
+[project.scripts]
+nba_mongo_upload = "sportsml.nba.data.download:mongo_upload"
