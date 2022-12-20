@@ -2,6 +2,7 @@ import pandas as pd
 
 from .features import STATS_COLUMNS, OPP_STATS_COLUMNS
 from .nodes import team_idx_map
+from ...mongo import client
 
 
 def process_games(games: pd.DataFrame):
@@ -51,3 +52,24 @@ def process_averages(games):
     avg = games.copy().drop(STATS_COLUMNS+OPP_STATS_COLUMNS, axis=1)
     avg_stats = games.groupby(['SEASON_ID', 'TEAM_ABBREVIATION'])[STATS_COLUMNS + OPP_STATS_COLUMNS].expanding().mean().groupby(['SEASON_ID', 'TEAM_ABBREVIATION']).shift(1).droplevel([0, 1])
     return avg.merge(avg_stats, left_index=True, right_index=True)
+
+
+def get_regular_season_games():
+    return pd.DataFrame(
+        client.nba.games.find({
+            'SEASON_ID': {'$regex': '^2'},
+            'GAME_ID': {'$regex': '^0'},
+        })
+    )
+
+
+def featurize_games(avgs):
+    first_avgs = avgs.drop_duplicates('GAME_ID', keep='first').set_index('GAME_ID', drop=True)
+    last_avgs = avgs.drop_duplicates('GAME_ID', keep='last').set_index('GAME_ID', drop=True)
+
+    stats = STATS_COLUMNS + OPP_STATS_COLUMNS
+    opp_stats = [f'OPP_{stat}' for stat in stats]
+
+    first_avgs[opp_stats] = last_avgs[stats].values
+
+    return first_avgs
