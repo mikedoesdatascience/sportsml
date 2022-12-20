@@ -2,7 +2,7 @@ import pandas as pd
 
 from .features import STATS_COLUMNS, OPP_STATS_COLUMNS
 from .nodes import team_idx_map
-from ...mongo import client
+from ...mongo import client, group_aggregation
 
 
 def process_games(games: pd.DataFrame):
@@ -61,6 +61,39 @@ def get_regular_season_games():
             'GAME_ID': {'$regex': '^0'},
         })
     )
+
+
+def get_regular_season_averages(date):
+    season_id = client.nba.games.find_one({'GAME_DATE': date}).get('SEASON_ID')
+    result = list(
+        client.nba.games.aggregate(
+            [
+                {
+                    "$match": {
+                        'SEASON_ID': season_id,
+                        'GAME_DATE': {"$lt": date},
+                        'GAME_ID': {'$regex': '^0'}
+                    }
+                },
+                group_aggregation(STATS_COLUMNS + OPP_STATS_COLUMNS, 'TEAM_ABBREVIATION')
+            ]
+        )
+    )
+    return {
+        res.pop('_id'): {
+            'stats': {
+                k: v
+                for k,v in res.items()
+                if '_OPP' not in k
+            },
+            'opp_stats': {
+                k: v
+                for k,v in res.items()
+                if '_OPP' in k
+            }
+        }
+        for res in result
+    }
 
 
 def featurize_games(avgs):
