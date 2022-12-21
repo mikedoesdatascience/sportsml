@@ -1,5 +1,5 @@
 REGISTRY ?= registry.gitlab.com/mikedoesdatascience/sportsml
-VERSION ?= 0.0.1
+VERSION ?= $(shell cd python && python setup.py --version)
 
 default: build
 
@@ -35,3 +35,18 @@ debug:
 		-w /project \
 		--entrypoint bash \
 		$(REGISTRY):$(VERSION)
+
+upload:
+	@docker run -it --rm \
+		-e MONGODB_URI \
+		-e MONGODB_USERNAME \
+		-e MONGODB_PASSWORD \
+		$(REGISTRY):$(VERSION) \
+			nba_mongo_upload
+
+	@docker run -it --rm \
+		-e MONGODB_URI \
+		-e MONGODB_USERNAME \
+		-e MONGODB_PASSWORD \
+		$(REGISTRY):$(VERSION) \
+			nfl_mongo_upload
