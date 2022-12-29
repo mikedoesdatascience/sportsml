@@ -3,17 +3,17 @@ VERSION ?= $(shell cd python && python setup.py --version)
 
 default: build
 
-freeze:
+pip-lock:
 	@docker build \
-		-t $(REGISTRY):freeze \
-		-f docker/Dockerfile.freeze \
+		-t $(REGISTRY):lock \
+		-f docker/Dockerfile.lock \
 		.
 	@docker run -it --rm \
 		-v $(shell pwd):$(shell pwd) \
 		-w $(shell pwd) \
 		-u $(shell id -u):$(shell id -g) \
-		$(REGISTRY):freeze \
-			pip-compile python/pyproject.toml --resolver=backtracking --no-annotate --no-header --cache-dir /tmp/.cache -o python/requirements.txt
+		$(REGISTRY):lock \
+			python -m pip freeze --no-cache-dir > python/requirements.lock
 	
 
 build:

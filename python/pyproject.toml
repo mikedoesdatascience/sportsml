@@ -9,27 +9,10 @@ description = "ML for sports"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT license"}
-dependencies = [
-    "captum",
-    "dgl",
-    "dgllife",
-    "hydra-core",
-    "nba_api",
-    "neo4j",
-    "networkx",
-    "numpy",
-    "mlflow",
-    "pandas",
-    "py2neo",
-    "pyarrow",
-    "pymongo[srv]",
-    "pytorch_lightning",
-    "seaborn",
-    "sklearn",
-    "torch",
-    "torchmetrics",
-    "typer"
-]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 
 [project.scripts]
 nba_mongo_upload = "sportsml.nba.data.download:mongo_upload"

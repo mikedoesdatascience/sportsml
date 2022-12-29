@@ -1,8 +1,11 @@
 FROM python:3.10
 
-COPY python/requirements.txt /tmp/requirements.txt
-RUN python -m pip install --no-cache-dir -r /tmp/requirements.txt && \
-    rm /tmp/requirements.txt
+RUN python -m pip install -U pip
+
+COPY python/requirements.lock /tmp/requirements.lock
+
+RUN python -m pip install -U --no-cache-dir -r /tmp/requirements.lock && \
+    rm /tmp/requirements.lock
 
 COPY python /src/sportsml
 
