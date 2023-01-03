@@ -1,0 +1,9 @@
+image: registry.gitlab.com/mikedoesdatascience/sportsml:0.0.1
+
+stages:
+  - upload
+
+nba-upload:
+  stage: upload
+  script:
+    - nba_mongo_upload
