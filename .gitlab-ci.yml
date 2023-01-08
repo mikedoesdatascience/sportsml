@@ -19,8 +19,8 @@ stages:
 docker-build:
   stage: build
   script:
-    - make
-    - make TAG=latest
+    - make build
+    - make build TAG=latest
   rules:
     - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "dev")
 
