@@ -19,6 +19,7 @@ docker-build:
   stage: build
   script:
     - make
+    - make TAG=latest
   rules:
     - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "dev")
 
@@ -26,5 +27,6 @@ docker-publish:
   stage: publish
   script:
     - make push
+    - make push TAG=latest
   rules:
     - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "dev")
