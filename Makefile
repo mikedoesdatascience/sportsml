@@ -1,5 +1,5 @@
 REGISTRY ?= registry.gitlab.com/mikedoesdatascience/sportsml
-VERSION ?= $(shell cd python && python setup.py --version)
+VERSION ?= $(shell cd python && python3 setup.py --version)
 
 default: build
 
