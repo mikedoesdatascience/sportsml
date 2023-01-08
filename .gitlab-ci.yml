@@ -4,11 +4,12 @@ stages:
 
 docker-build-push:
   stage: build
-  only:
-    - tags
   image: docker:latest
   services:
     - docker:dind
+  only:
+    - tags
+  needs: []
   before_script:
     - apk add make python3 py-pip
     - docker info
@@ -21,9 +22,10 @@ docker-build-push:
 
 pypi-publish:
   stage: publish
+  image: python:3.10
   only:
     - tags
-  image: python:3.10
+  needs: []
   script:
     - python -m pip install twine
     - python python/setup.py sdist bdist_wheel
