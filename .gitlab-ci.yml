@@ -29,4 +29,4 @@ pypi-publish:
   script:
     - python -m pip install twine
     - python python/setup.py sdist bdist_wheel
-    - python -u __token__ -p $PYPI_TOKEN -m twine upload --verbose dist/*
+    - python -m twine -u __token__ -p $PYPI_TOKEN upload --verbose dist/*
