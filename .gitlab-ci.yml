@@ -7,3 +7,8 @@ nba-upload:
   stage: upload
   script:
     - nba_mongo_upload
+
+nfl-upload:
+  stage: upload
+  script:
+    - nfl_mongo_upload
