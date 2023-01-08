@@ -1,22 +1,16 @@
-image: docker:latest
-
-variables:
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-
-services:
-  - docker:dind
-
-before_script:
-  - apk add make python3 py-pip
-  - docker info
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-
 stages:
   - build
+  - publish
 
 docker-build-push:
   stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - apk add make python3 py-pip
+    - docker info
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
     - make build
     - make build TAG=latest
@@ -24,3 +18,13 @@ docker-build-push:
     - make push TAG=latest
   rules:
     - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "dev")
+
+pypi-publish:
+  stage: publish
+  image: python:3.10
+  only:
+    - tags
+  script:
+    - python -m pip install twine
+    - python python/setup.py sdist bdist_wheel
+    - python -u __token__ -p $PYPI_TOKEN -m twine upload --verbose dist/*
