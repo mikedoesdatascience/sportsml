@@ -4,6 +4,8 @@ stages:
 
 docker-build-push:
   stage: build
+  only:
+    - tags
   image: docker:latest
   services:
     - docker:dind
@@ -16,14 +18,12 @@ docker-build-push:
     - make build TAG=latest
     - make push
     - make push TAG=latest
-  rules:
-    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "dev")
 
 pypi-publish:
   stage: publish
-  image: python:3.10
   only:
     - tags
+  image: python:3.10
   script:
     - python -m pip install twine
     - python python/setup.py sdist bdist_wheel
