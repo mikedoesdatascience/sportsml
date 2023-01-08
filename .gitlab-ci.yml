@@ -1,14 +1,30 @@
-image: registry.gitlab.com/mikedoesdatascience/sportsml:0.0.1
+image: docker:20.10.16
+
+variables:
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+
+services:
+  - docker:20.10.16-dind
+
+before_script:
+  - docker info
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 stages:
-  - upload
+  - build
+  - publish
 
-nba-upload:
-  stage: upload
+docker-build:
+  stage: build
   script:
-    - nba_mongo_upload
+    - make
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "dev")
 
-nfl-upload:
-  stage: upload
+docker-publish:
+  stage: publish
   script:
-    - nfl_mongo_upload
+    - make push
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "dev")
