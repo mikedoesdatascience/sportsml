@@ -19,8 +19,23 @@ def download_games():
     return pd.concat(games)
 
 
+def games_from_last_date():
+    games = []
+    last_date = datetime.date.fromisoformat(
+        client.nba.games.find({}).sort('GAME_DATE', -1).limit(1).next()['GAME_DATE']
+    ).strftime('%m/%d/%Y')
+    for team in tqdm.tqdm(teams.get_teams()):
+        gamefinder = leaguegamefinder.LeagueGameFinder(
+            team_id_nullable=team["id"],
+            date_from_nullable=last_date
+        )
+        games.append(gamefinder.get_data_frames()[0])
+        time.sleep(0.5)
+    return pd.concat(games)
+
+
 def mongo_upload():
-    games = download_games()
+    games = games_from_last_date()
     games = process_games(games)
     games["_id"] = games[["GAME_ID", "TEAM_ID"]].agg(
         lambda x: ".".join(map(str, x)), axis=1
