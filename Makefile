@@ -22,12 +22,28 @@ build:
 		-f docker/Dockerfile \
 		.
 
+build-prod:
+	@docker build \
+		-t $(REGISTRY):$(VERSION) \
+		-f docker/Dockerfile.prod \
+		.
+
 push:
 	@docker push $(REGISTRY):$(VERSION)
 
 debug:
 	@docker run -it --rm \
 		-v $(shell pwd)/python/sportsml:/usr/local/lib/python3.10/site-packages/sportsml \
+		-e MONGODB_URI \
+		-e MONGODB_USERNAME \
+		-e MONGODB_PASSWORD \
+		$(VOLUMES) \
+		-w /project \
+		--entrypoint bash \
+		$(REGISTRY):$(VERSION)
+
+run:
+	@docker run -it --rm \
 		-e MONGODB_URI \
 		-e MONGODB_USERNAME \
 		-e MONGODB_PASSWORD \
