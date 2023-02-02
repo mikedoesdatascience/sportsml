@@ -27,7 +27,7 @@ docker-build-push:
     - docker info
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - make build
-    - make build VERSION=latest
+    - make build-prod
+    - make build-prod VERSION=latest
     - make push
     - make push VERSION=latest
