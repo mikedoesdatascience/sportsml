@@ -1,0 +1,9 @@
+FROM python:3.10
+
+RUN python -m pip install -U pip
+
+COPY python/requirements.lock /tmp/requirements.lock
+
+RUN python -m pip install -U --no-cache-dir -r /tmp/requirements.lock && \
+    rm /tmp/requirements.lock && \
+    python -m pip install -U --no-cache-dir sportsml
