@@ -103,6 +103,6 @@ def featurize_games(avgs):
     stats = STATS_COLUMNS + OPP_STATS_COLUMNS
     opp_stats = [f'OPP_{stat}' for stat in stats]
 
-    first_avgs[opp_stats] = last_avgs[stats].values
+    first_avgs[opp_stats] = last_avgs[stats]
 
     return first_avgs
