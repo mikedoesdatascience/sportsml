@@ -30,4 +30,4 @@ STATS_COLUMNS = [
 
 OPP_STATS_COLUMNS = [f"opp_{col}" for col in STATS_COLUMNS]
 
-FEATURE_COLUMNS = STATS_COLUMNS + OPP_STATS_COLUMNS + [f'{stat}_opp' for stat in STATS_COLUMNS + OPP_STATS_COLUMNS] + ['rest', 'opp_rest']
+FEATURE_COLUMNS = STATS_COLUMNS + OPP_STATS_COLUMNS + [f'{stat}_opp' for stat in STATS_COLUMNS + OPP_STATS_COLUMNS] + ['home', 'rest', 'opp_rest']
