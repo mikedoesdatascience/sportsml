@@ -1,6 +1,7 @@
 import pandas as pd
 
-from .features import STATS_COLUMNS
+from ...mongo import client, group_aggregation
+from .features import OPP_STATS_COLUMNS, STATS_COLUMNS
 from .names import move_map
 
 
@@ -76,11 +77,68 @@ def merge_games_schedule(games, schedule):
         ]
     )
 
+    games['home'] = games.apply(lambda x: int(x['game_id'].endswith(x['team'])), axis=1)
+
     return games
+
+
+def get_season_averages(season, week):
+    result = list(
+        client.nfl.games.aggregate(
+            [
+                {
+                    "$match": {
+                        'season': season,
+                        'week': {"$lt": week}
+                    }
+                },
+                group_aggregation(STATS_COLUMNS + OPP_STATS_COLUMNS, 'team')
+            ]
+        )
+    )
+    return {
+        res.pop('_id'): {
+            'stats': {
+                k: v
+                for k,v in res.items()
+                if 'opp_' not in k
+            },
+            'opp_stats': {
+                k: v
+                for k,v in res.items()
+                if 'opp_' in k
+            }
+        }
+        for res in result
+    }
 
 
 def process_averages(games):
     games = games.sort_values(['season', 'week'])
     avg = games.copy().drop(STATS_COLUMNS+OPP_STATS_COLUMNS, axis=1)
-    avg_stats = games.groupby(['SEASON_ID', 'TEAM_ABBREVIATION'])[STATS_COLUMNS + OPP_STATS_COLUMNS].expanding().mean().groupby(['SEASON_ID', 'TEAM_ABBREVIATION']).shift(1).droplevel([0, 1])
+    avg_stats = games.groupby(['season', 'team'])[STATS_COLUMNS + OPP_STATS_COLUMNS].expanding().mean().groupby(['season', 'team']).shift(1).droplevel([0, 1])
     return avg.merge(avg_stats, left_index=True, right_index=True)
+
+def featurize_games(avgs):
+    avgs = avgs.copy()
+    opp_avgs = avgs.copy()
+    opp_avgs['_id'] = opp_avgs.apply(
+        lambda row: '-'.join([
+            str(row['season']), 
+            str(row['week']), 
+            row['opp_team'], 
+            row['team']
+        ]), 
+        axis=1
+    )
+
+    stats = STATS_COLUMNS + OPP_STATS_COLUMNS
+
+    opp_stats = [f'{stat}_opp' for stat in stats]
+
+    avgs = avgs.set_index('_id')
+    opp_avgs = opp_avgs.set_index('_id')
+
+    avgs[opp_stats] = opp_avgs[stats]
+
+    return avgs
