@@ -1,6 +1,7 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
-from .features import STATS_COLUMNS, OPP_STATS_COLUMNS
+from .features import STATS_COLUMNS, OPP_STATS_COLUMNS, FEATURE_COLUMNS
 from .nodes import team_idx_map
 from ...mongo import client, group_aggregation
 
@@ -106,3 +107,24 @@ def featurize_games(avgs):
     first_avgs[opp_stats] = last_avgs[stats]
 
     return first_avgs
+
+
+def get_training_data(feature_columns=FEATURE_COLUMNS, target_column='PLUS_MINUS'):
+    games = get_regular_season_games()
+    avgs = process_averages(games)
+    f = featurize_games(avgs)
+    f = f.dropna(subset=FEATURE_COLUMNS)
+    X = f[feature_columns].values
+    y = f[target_column].values
+    return X, y
+
+
+def get_training_data_split(
+    feature_columns=FEATURE_COLUMNS,
+    target_column='PLUS_MINUS',
+    test_size=0.2,
+    random_state=None
+):
+    X, y = get_training_data(feature_columns=feature_columns, target_column=target_column)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+    return X_train, X_test, y_train, y_test
