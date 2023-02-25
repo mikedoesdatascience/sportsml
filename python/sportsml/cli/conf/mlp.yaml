@@ -1,0 +1,18 @@
+trainer:
+  _target_: pytorch_lightning.Trainer
+  min_epochs: 10
+  logger: True
+  callbacks:
+    - _target_: pytorch_lightning.callbacks.early_stopping.EarlyStopping
+      monitor: val_rmse
+
+model:
+  _target_: sportsml.models.mlp.MLP
+  in_feats: 58
+  dims:
+    - 100
+    - 100
+    - 1
+
+dm:
+  _target_: sportsml.nba.data.datamodule.NBAGameDataModule

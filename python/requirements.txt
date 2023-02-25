@@ -1,6 +1,7 @@
 captum
 dgl
 dgllife
+google-cloud-storage
 hydra-core
 nba_api
 neo4j
