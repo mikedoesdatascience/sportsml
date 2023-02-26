@@ -1,8 +1,10 @@
+bs4
 captum
 dgl
 dgllife
 google-cloud-storage
 hydra-core
+lxml
 nba_api
 neo4j
 networkx
@@ -13,6 +15,7 @@ py2neo
 pyarrow
 pymongo[srv]
 pytorch_lightning
+requests
 scikit-learn
 seaborn
 torch
