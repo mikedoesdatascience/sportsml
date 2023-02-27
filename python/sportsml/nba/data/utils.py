@@ -109,14 +109,12 @@ def featurize_games(avgs):
     return first_avgs
 
 
-def get_training_data(feature_columns=FEATURE_COLUMNS, target_column='PLUS_MINUS'):
+def get_training_data(feature_columns=FEATURE_COLUMNS):
     games = get_regular_season_games()
     avgs = process_averages(games)
     f = featurize_games(avgs)
-    f = f.dropna(subset=FEATURE_COLUMNS)
-    X = f[feature_columns].values
-    y = f[target_column].values
-    return X, y
+    f = f.dropna(subset=feature_columns)
+    return f
 
 
 def get_training_data_split(
@@ -125,6 +123,9 @@ def get_training_data_split(
     test_size=0.2,
     random_state=None
 ):
-    X, y = get_training_data(feature_columns=feature_columns, target_column=target_column)
+    f = get_training_data()
+    f = f.dropna(subset=FEATURE_COLUMNS)
+    X = f[feature_columns].values
+    y = f[target_column].values
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
     return X_train, X_test, y_train, y_test
