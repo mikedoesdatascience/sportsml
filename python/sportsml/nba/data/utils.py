@@ -52,7 +52,9 @@ def process_averages(games):
     games = games.sort_values('GAME_DATE')
     avg = games.copy().drop(STATS_COLUMNS+OPP_STATS_COLUMNS, axis=1)
     avg_stats = games.groupby(['SEASON_ID', 'TEAM_ABBREVIATION'])[STATS_COLUMNS + OPP_STATS_COLUMNS].expanding().mean().groupby(['SEASON_ID', 'TEAM_ABBREVIATION']).shift(1).droplevel([0, 1])
-    return avg.merge(avg_stats, left_index=True, right_index=True)
+    rolling_stats = games.groupby(['SEASON_ID', 'TEAM_ABBREVIATION'])[STATS_COLUMNS + OPP_STATS_COLUMNS].rolling(5, 1, closed='left').mean().droplevel([0, 1])
+    rolling_stats.columns = [f'{col}_rolling' for col in rolling_stats.columns]
+    return avg.merge(avg_stats, left_index=True, right_index=True).merge(rolling_stats, left_index=True, right_index=True)
 
 
 def get_regular_season_games():
@@ -102,6 +104,7 @@ def featurize_games(avgs):
     last_avgs = avgs.drop_duplicates('GAME_ID', keep='last').set_index('GAME_ID', drop=True)
 
     stats = STATS_COLUMNS + OPP_STATS_COLUMNS
+    stats = stats + [f'{col}_rolling' for col in stats]
     opp_stats = [f'OPP_{stat}' for stat in stats]
 
     first_avgs[opp_stats] = last_avgs[stats]
