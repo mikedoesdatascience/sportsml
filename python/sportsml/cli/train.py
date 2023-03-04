@@ -12,7 +12,8 @@ def train(cfg : DictConfig) -> None:
 
     trainer.fit(model, dm)
 
-    trainer.test(model, dm, ckpt_path='best')
+    if len(dm.test_ds):
+        trainer.test(model, dm, ckpt_path='best')
 
 if __name__ == "__main__":
     train()
