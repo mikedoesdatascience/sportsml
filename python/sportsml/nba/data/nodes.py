@@ -58,7 +58,7 @@ team_abr_map = {
     23: 'SEA',
     24: 'TOR',
     25: 'UTA',
-    26: 'VAN',
+    26: 'MEM',
     27: 'WAS',
     28: 'DET',
     29: 'CHH'
