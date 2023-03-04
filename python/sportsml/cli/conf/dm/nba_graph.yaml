@@ -7,3 +7,4 @@ splits:
   - 0.1
   - 0.1
 batch_size: 32
+num_workers: 4
