@@ -1,4 +1,7 @@
 _target_: sportsml.nba.data.datamodule.NBAGraphDataModule
+df:
+  _target_: sportsml.nba.data.utils.get_regular_season_games
+split_type: random
 splits:
   - 0.8
   - 0.1

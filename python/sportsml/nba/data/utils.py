@@ -57,13 +57,14 @@ def process_averages(games):
     return avg.merge(avg_stats, left_index=True, right_index=True).merge(rolling_stats, left_index=True, right_index=True)
 
 
-def get_regular_season_games():
-    return pd.DataFrame(
-        client.nba.games.find({
-            'SEASON_ID': {'$regex': '^2'},
-            'GAME_ID': {'$regex': '^0'},
-        })
-    )
+def get_regular_season_games(query={}):
+    query.update({
+        'SEASON_ID': {'$regex': '^2'},
+        'GAME_ID': {'$regex': '^0'},
+    })
+    df = pd.DataFrame(client.nba.games.find(query)).sort_values('GAME_DATE')
+    return df
+
 
 
 def get_regular_season_averages(date):
