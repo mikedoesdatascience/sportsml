@@ -40,7 +40,7 @@ class GraphMLP(pl.LightningModule):
         )
 
         src, dst = test.edges()
-        x = torch.cat([train.ndata['h'][src], train.ndata['h'][dst]], dim=1)
+        x = torch.cat([train.ndata['h'][src], train.ndata['h'][dst], test.edata['home']], dim=1)
 
         return self.mlp(x)
 

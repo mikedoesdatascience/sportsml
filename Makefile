@@ -41,6 +41,7 @@ debug:
 		$(VOLUMES) \
 		-w /project \
 		--entrypoint bash \
+		--shm-size=8gb \
 		$(REGISTRY):$(VERSION)
 
 run:

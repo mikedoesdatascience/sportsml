@@ -1,5 +1,5 @@
 _target_: sportsml.models.graph_mlp.GraphMLP
-in_feats: 58
+in_feats: 57
 dims:
   - 100
   - 100

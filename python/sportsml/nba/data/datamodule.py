@@ -70,28 +70,32 @@ class NBAGraphDataset(object):
             s = df[df['SEASON'] == season]
             for date in s['GAME_DATE'].unique():
                 if s[s['GAME_DATE'] < date]['TEAM_ABBREVIATION'].unique().size == 30:
-                    self.dates.extend(s[s['GAME_DATE'] >= date]['GAME_DATE'].unique().tolist())
+                    self.dates.extend(s[s['GAME_DATE'] >= date]['GAME_DATE'].str.replace('-', '').astype(int).unique().tolist())
                     break
+        self.graph = self.generate_graph()
 
     def __len__(self):
         return len(self.dates)
 
     def __getitem__(self, idx):
-        return self.generate_graph(idx)
-
-    def generate_graph(self, idx):
         date = self.dates[idx]
-        df = self.df[self.df['GAME_DATE'] <= date]
-        df = df[df['SEASON'] == df['SEASON'].max()]
-        g = dgl.graph(
-            (torch.from_numpy(df['src'].values), torch.from_numpy(df['target'].values)),
-            num_nodes=30
-        )
-        g.edata['f'] = torch.from_numpy(df[self.feature_columns].values).float()
-        g.edata['y'] = torch.from_numpy(df[[self.target_column]].values).float()
-        g.edata['date'] = torch.from_numpy(df['GAME_DATE'].str.replace('-', '').values.astype(int))
+        g = self.graph.edge_subgraph(self.graph.edata['date'] < date, relabel_nodes=False)
+        g = g.edge_subgraph(g.edata['season'] == g.edata['season'].max(), relabel_nodes=False)
         g.edata['train'] = g.edata['date'] != g.edata['date'].max()
         g.edata['w'] = 1 / (g.edata['date'].max() - g.edata['date']).clip(1)
+        return g
+
+    def generate_graph(self):
+        g = dgl.graph(
+            (torch.from_numpy(self.df['src'].values), torch.from_numpy(self.df['target'].values)),
+            num_nodes=30
+        )
+        g.edata['f'] = torch.from_numpy(self.df[self.feature_columns].values).float()
+        g.edata['y'] = torch.from_numpy(self.df[[self.target_column]].values).float()
+        g.edata['home'] = torch.from_numpy(self.df[['HOME']].values).float()
+        g.edata['rest'] = torch.from_numpy(self.df[['REST']].values).float()
+        g.edata['date'] = torch.from_numpy(self.df['GAME_DATE'].str.replace('-', '').values.astype(int))
+        g.edata['season'] = torch.from_numpy(self.df['SEASON'].values.astype(int))
         return g
 
 
