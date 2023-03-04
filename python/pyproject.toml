@@ -7,7 +7,7 @@ name = "sportsml"
 version = "0.0.9-dev0"
 description = "ML for sports"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 license = {text = "MIT license"}
 dynamic = ["dependencies"]
 
