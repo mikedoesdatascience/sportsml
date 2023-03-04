@@ -43,6 +43,20 @@ class GraphMLP(pl.LightningModule):
         x = torch.cat([train.ndata['h'][src], train.ndata['h'][dst], test.edata['home']], dim=1)
 
         return self.mlp(x)
+    
+    def predict(self, g, u, v, home=True):
+        g.update_all(
+            dgl.function.copy_e('f', 'm'),
+            dgl.function.reducer.mean('m', 'h')
+        )
+        if home is True:
+            home = torch.tensor([[1]]*len(u))
+        elif not isinstance(home, torch.tensor):
+            home = torch.tensor(home)
+
+        x = torch.cat([g.ndata['h'][u], g.ndata['h'][v], home], dim=1)
+
+        return self.mlp(x)
 
     def training_step(self, g, g_idx):
         test = g.edge_subgraph(g.edata['train'] == False, relabel_nodes=False).local_var()
