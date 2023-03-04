@@ -1,0 +1,6 @@
+defaults:
+  - model: mlp
+  - dm: nba_game
+  - trainer: early_stopping
+
+seed: null

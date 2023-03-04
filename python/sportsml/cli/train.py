@@ -2,7 +2,7 @@ import hydra
 import pytorch_lightning as pl
 from omegaconf import DictConfig, OmegaConf
 
-@hydra.main(version_base=None, config_path="conf", config_name="mlp")
+@hydra.main(version_base=None, config_path="conf", config_name="conf")
 def train(cfg : DictConfig) -> None:
     if cfg.seed is not None:
         pl.seed_everything(cfg.seed)

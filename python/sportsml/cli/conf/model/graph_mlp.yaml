@@ -1,0 +1,7 @@
+_target_: sportsml.models.graph_mlp.GraphMLP
+in_feats: 58
+dims:
+  - 100
+  - 100
+out_feats: 1
+dropout: 0.1

@@ -1,0 +1,6 @@
+_target_: sportsml.nba.data.datamodule.NBAGraphDataModule
+splits:
+  - 0.8
+  - 0.1
+  - 0.1
+batch_size: 8

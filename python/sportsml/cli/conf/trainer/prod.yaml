@@ -1,0 +1,5 @@
+_target_: pytorch_lightning.Trainer
+max_epochs: 20
+logger: True
+callbacks:
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint

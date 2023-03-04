@@ -1,0 +1,6 @@
+_target_: sportsml.models.mlp.MLP
+in_feats: 114
+dims:
+  - 100
+  - 100
+  - 1
