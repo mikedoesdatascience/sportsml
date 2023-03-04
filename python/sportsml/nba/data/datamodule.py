@@ -17,7 +17,8 @@ class NBAGameDataModule(pl.LightningDataModule):
         feature_columns=FEATURE_COLUMNS,
         target_column='PLUS_MINUS',
         batch_size=64,
-        splits=[0.8, 0.1, 0.1]
+        splits=[0.8, 0.1, 0.1],
+        num_workers=4
     ):
         super().__init__()
         if df is None:
@@ -29,6 +30,7 @@ class NBAGameDataModule(pl.LightningDataModule):
         self.target_column = target_column
         self.batch_size = batch_size
         self.splits = splits
+        self.num_workers = num_workers
 
     def df_to_dataset(self, df):
         X = df[self.feature_columns].values
@@ -50,13 +52,13 @@ class NBAGameDataModule(pl.LightningDataModule):
             self.test_ds = self.df_to_dataset(self.test_df)
     
     def train_dataloader(self):
-        return torch.utils.data.DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True)
+        return torch.utils.data.DataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
     
     def val_dataloader(self):
-        return torch.utils.data.DataLoader(self.val_ds, batch_size=self.batch_size, shuffle=False)
+        return torch.utils.data.DataLoader(self.val_ds, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
     
     def test_dataloader(self):
-        return torch.utils.data.DataLoader(self.test_ds, batch_size=self.batch_size, shuffle=False)
+        return torch.utils.data.DataLoader(self.test_ds, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
 
 class NBAGraphDataset(object):

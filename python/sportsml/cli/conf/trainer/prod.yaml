@@ -1,4 +1,5 @@
 _target_: pytorch_lightning.Trainer
+default_root_dir: ${hydra:run.dir}
 max_epochs: 20
 logger: True
 callbacks:
