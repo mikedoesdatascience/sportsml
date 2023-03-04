@@ -62,4 +62,6 @@ team_abr_map = {
     27: 'WAS',
     28: 'DET',
     29: 'CHH'
- }
+}
+
+team_abr_lookup = {v: k for k, v in team_abr_map.items()}
