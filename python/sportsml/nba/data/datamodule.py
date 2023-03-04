@@ -102,7 +102,8 @@ class NBAGraphDataModule(pl.LightningDataModule):
         feature_columns=GRAPH_FEATURES,
         target_column='PLUS_MINUS',
         batch_size=64,
-        splits=[0.8, 0.1, 0.1]
+        splits=[0.8, 0.1, 0.1],
+        num_workers=4
     ):
         super().__init__()
         if df is None:
@@ -112,6 +113,7 @@ class NBAGraphDataModule(pl.LightningDataModule):
         self.target_column = target_column
         self.batch_size = batch_size
         self.splits = splits
+        self.num_workers = num_workers
     
     def setup(self, stage='train'):
         self.ds = NBAGraphDataset(self.df, self.feature_columns, self.target_column)
@@ -120,10 +122,10 @@ class NBAGraphDataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        return dgl.dataloading.GraphDataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True)
+        return dgl.dataloading.GraphDataLoader(self.train_ds, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
 
     def val_dataloader(self):
-        return dgl.dataloading.GraphDataLoader(self.val_ds, batch_size=self.batch_size, shuffle=False)
+        return dgl.dataloading.GraphDataLoader(self.val_ds, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
 
     def test_dataloader(self):
-        return dgl.dataloading.GraphDataLoader(self.test_ds, batch_size=self.batch_size, shuffle=False)
+        return dgl.dataloading.GraphDataLoader(self.test_ds, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
