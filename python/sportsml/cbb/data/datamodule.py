@@ -15,10 +15,13 @@ class CBBGraphDataset(object):
         seasons = df['Season'].unique()
         self.dates = []
         for season in seasons:
-            s = df[df['SEASON'] == season]
+            s = df[df['Season'] == season]
             for date in s['DayNum'].unique():
-                if s[s['DayNum'] < date]['TeamID'].unique().size == self.df['TeamID'].unique().size:
-                    self.dates.extend(s[s['DayNum'] >= date]['DayNum'].astype(int).unique().tolist())
+                if s[s['DayNum'] < date]['TeamID'].unique().size == s['TeamID'].unique().size:
+                    self.dates.extend([
+                        [season, d]
+                        for d in s[s['DayNum'] >= date]['DayNum'].astype(int).unique().tolist()
+                    ])
                     break
         self.graph = self.generate_graph()
 
@@ -26,9 +29,10 @@ class CBBGraphDataset(object):
         return len(self.dates)
 
     def __getitem__(self, idx):
-        date = self.dates[idx]
-        g = self.graph.edge_subgraph(self.graph.edata['date'] < date, relabel_nodes=False)
-        g = g.edge_subgraph(g.edata['season'] == g.edata['season'].max(), relabel_nodes=False)
+        season, date = self.dates[idx]
+        g = self.graph.edge_subgraph(
+            (self.graph.edata['season'] == season) & (self.graph.edata['date'] <= date)
+        , relabel_nodes=False)
         g.edata['train'] = g.edata['date'] != g.edata['date'].max()
         g.edata['w'] = 1 / (g.edata['date'].max() - g.edata['date']).clip(1)
         return g
@@ -36,12 +40,12 @@ class CBBGraphDataset(object):
     def generate_graph(self):
         g = dgl.graph(
             (torch.from_numpy(self.df['TeamID_OPP'].values), torch.from_numpy(self.df['TeamID'].values)),
-            num_nodes=30
+            num_nodes=self.df['TeamID'].max() + 1
         )
         g.edata['f'] = torch.from_numpy(self.df[self.feature_columns].values).float()
         g.edata['y'] = torch.from_numpy(self.df[[self.target_column]].values).float()
         g.edata['home'] = torch.from_numpy(self.df[['Loc']].values).float()
-        g.edata['date'] = torch.from_numpy(self.df['DayNum'].str.replace('-', '').values.astype(int))
+        g.edata['date'] = torch.from_numpy(self.df['DayNum'].values.astype(int))
         g.edata['season'] = torch.from_numpy(self.df['Season'].values.astype(int))
         return g
 
