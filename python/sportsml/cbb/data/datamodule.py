@@ -67,7 +67,7 @@ class CBBGraphDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
     
     def setup(self, stage='train'):
-        self.ds = NBAGraphDataset(self.df, self.feature_columns, self.target_column)
+        self.ds = CBBGraphDataset(self.df, self.feature_columns, self.target_column)
         if self.split_type == 'random':
             self.train_ds, self.val_ds, self.test_ds = torch.utils.data.random_split(
                 self.ds, self.splits
