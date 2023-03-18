@@ -94,7 +94,7 @@ class NBAGraphDataset(object):
         )
         g.edata['f'] = torch.from_numpy(self.df[self.feature_columns].values).float()
         g.edata['y'] = torch.from_numpy(self.df[[self.target_column]].values).float()
-        g.edata['home'] = torch.from_numpy(self.df[['HOME']].values).float()
+        g.edata['p'] = torch.from_numpy(self.df[['HOME']].values).float()
         g.edata['rest'] = torch.from_numpy(self.df[['REST']].values).float()
         g.edata['date'] = torch.from_numpy(self.df['GAME_DATE'].str.replace('-', '').values.astype(int))
         g.edata['season'] = torch.from_numpy(self.df['SEASON'].values.astype(int))

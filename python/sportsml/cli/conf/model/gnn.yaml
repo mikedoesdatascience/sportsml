@@ -1,0 +1,10 @@
+_target_: sportsml.models.gnn.GraphModel
+encoder:
+  _target_: sportsml.layers.gnn.encoder.nn.NNEncoder
+  in_feats: 28
+  out_feats: 100
+predictor:
+  _target_: sportsml.layers.gnn.predictor.nn.NNPredictor
+  in_feats: 201
+  dims:
+    - 100

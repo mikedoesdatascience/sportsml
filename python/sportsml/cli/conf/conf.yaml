@@ -1,6 +1,6 @@
 defaults:
-  - model: mlp
-  - dm: nba_game
+  - model: gnn
+  - dm: cbb
   - trainer: early_stopping
   - _self_
 
