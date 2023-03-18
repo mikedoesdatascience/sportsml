@@ -4,7 +4,7 @@ import torch
 
 
 class NNPredictor(torch.nn.Module):
-    def __init__(self, in_feats: int, dims: List=[100, 100], out_feats: int=1, dropout: float=0.1):
+    def __init__(self, in_feats: int, dims: List=[], out_feats: int=1, dropout: float=0.1):
         super().__init__()
         self.dims = list(dims)
         self.dims.insert(0, in_feats)
