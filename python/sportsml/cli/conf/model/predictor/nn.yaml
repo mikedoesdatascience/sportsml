@@ -1,0 +1,4 @@
+_target_: sportsml.layers.gnn.predictor.nn.NNPredictor
+in_feats: 201
+dims:
+  - 100
