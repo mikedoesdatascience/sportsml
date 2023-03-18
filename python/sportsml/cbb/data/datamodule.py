@@ -44,7 +44,7 @@ class CBBGraphDataset(object):
         )
         g.edata['f'] = torch.from_numpy(self.df[self.feature_columns].values).float()
         g.edata['y'] = torch.from_numpy(self.df[[self.target_column]].values).float()
-        g.edata['home'] = torch.from_numpy(self.df[['Loc']].values).float()
+        g.edata['p'] = torch.from_numpy(self.df[['Loc']].values).float()
         g.edata['date'] = torch.from_numpy(self.df['DayNum'].values.astype(int))
         g.edata['season'] = torch.from_numpy(self.df['Season'].values.astype(int))
         return g
