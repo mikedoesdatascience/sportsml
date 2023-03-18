@@ -1,0 +1,10 @@
+_target_: sportsml.cbb.data.datamodule.CBBGraphDataModule
+df:
+  _target_: sportsml.cbb.data.utils.get_games
+split_type: random
+splits:
+  - 0.8
+  - 0.1
+  - 0.1
+batch_size: 32
+num_workers: 4
