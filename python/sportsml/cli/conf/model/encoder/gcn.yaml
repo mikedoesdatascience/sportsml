@@ -1,0 +1,4 @@
+_target_: sportsml.layers.gnn.encoder.gcn.GCNEncoder
+in_feats: 28
+out_feats: 100
+depth: 3
