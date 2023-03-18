@@ -1,3 +1,4 @@
+import dgl
 import torch
 
 class MeanEncoder(torch.nn.Module):
