@@ -2,7 +2,7 @@ import dgl
 import numpy as np
 import pandas as pd
 import torch
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 
 from .features import GRAPH_FEATURES
 

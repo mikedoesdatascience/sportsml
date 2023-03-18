@@ -1,5 +1,5 @@
 import dgl
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 import torch
 import torchmetrics
 
@@ -45,6 +45,7 @@ class GraphModel(pl.LightningModule):
     def training_step(self, g, g_idx):
         p, y = self.batch_step(g)
         loss = torch.nn.functional.mse_loss(p, y)
+        self.log('train_loss', loss, prog_bar=True)
         return loss
 
     def validation_step(self, g, g_idx):
@@ -54,7 +55,7 @@ class GraphModel(pl.LightningModule):
         self.accuracy_score(p > 0, y > 0)
         self.precision_score(p > 0, y > 0)
         self.recall_score(p > 0, y > 0)
-        self.log('val_rmse', self.rmse)
+        self.log('val_rmse', self.rmse, prog_bar=True)
         self.log('val_mae', self.mae)
         self.log('val_accuracy', self.accuracy_score)
         self.log('val_precision', self.precision_score)
