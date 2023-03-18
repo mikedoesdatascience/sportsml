@@ -1,5 +1,0 @@
-_target_: sportsml.nba.data.datamodule.NBAGameDataModule
-splits:
-  - 0.8
-  - 0.1
-  - 0.1
