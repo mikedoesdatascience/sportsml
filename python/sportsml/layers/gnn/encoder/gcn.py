@@ -2,7 +2,7 @@ import dgl
 import torch
 
 class GCNEncoder(torch.nn.Module):
-    def __init__(self, in_feats, out_feats=100, depth=3, dropout=0.1, use_weight=True):
+    def __init__(self, in_feats, out_feats=100, depth=3, dropout=0.1, use_weight=False):
         super().__init__()
         self.use_weight = use_weight
         self.layer_init = torch.nn.Sequential(
