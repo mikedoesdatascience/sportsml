@@ -2,9 +2,9 @@ import dgl
 import torch
 
 class GCNEncoder(torch.nn.Module):
-    def __init__(self, in_feats, out_feats=100, depth=3, dropout=0.1):
+    def __init__(self, in_feats, out_feats=100, depth=3, dropout=0.1, use_weight=True):
         super().__init__()
-        self.depth = depth
+        self.use_weight = use_weight
         self.layer_init = torch.nn.Sequential(
             torch.nn.BatchNorm1d(in_feats),
             torch.nn.Linear(in_feats, out_feats),
@@ -30,6 +30,8 @@ class GCNEncoder(torch.nn.Module):
     def forward(self, g, e):
         g = g.local_var()
         g.edata['f'] = self.layer_init(e)
+        if self.use_weight:
+            g.edata['f'] = g.edata['f'] * g.edata['w']
         g.update_all(
             dgl.function.copy_e('f', 'm'),
             dgl.function.reducer.mean('m', 'f')
