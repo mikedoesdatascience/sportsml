@@ -1,3 +1,5 @@
+import itertools
+
 import dgl
 import lightning.pytorch as pl
 import torch
@@ -28,6 +30,14 @@ class GraphModel(pl.LightningModule):
         self.accuracy_score = torchmetrics.classification.MulticlassAccuracy(num_classes=2)
         self.precision_score = torchmetrics.classification.MulticlassPrecision(num_classes=2)
         self.recall_score = torchmetrics.classification.MulticlassRecall(num_classes=2)
+        
+        self.save_hyperparameters(
+            'encoder',
+            'predictor',
+            'edge_encoder_features',
+            'edge_predictor_features',
+            'edge_targets'
+        )
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
@@ -73,3 +83,10 @@ class GraphModel(pl.LightningModule):
         self.log('test_accuracy', self.accuracy_score)
         self.log('test_precision', self.precision_score)
         self.log('test_recall', self.recall_score)
+
+    def predict(self, graph):
+        h = self.encoder(graph, graph.edata[self.edge_encoder_features])
+        pred_graph = dgl.graph(list(itertools.permutations(range(graph.number_of_nodes()), 2)))
+        pred_graph.edata['home_pred'] = self.predictor(pred_graph, h, torch.ones((pred_graph.number_of_edges()), 1))
+        pred_graph.edata['away_pred'] = self.predictor(pred_graph, h, torch.zeros((pred_graph.number_of_edges()), 1))
+        return pred_graph
