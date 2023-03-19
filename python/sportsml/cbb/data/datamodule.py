@@ -34,7 +34,7 @@ class CBBGraphDataset(object):
             (self.graph.edata['season'] == season) & (self.graph.edata['date'] <= date)
         , relabel_nodes=False)
         g.edata['train'] = g.edata['date'] != g.edata['date'].max()
-        g.edata['w'] = 1 / (g.edata['date'].max() - g.edata['date']).clip(1)
+        g.edata['w'] = (1 / (g.edata['date'].max() + 1 - g.edata['date'])).reshape(-1, 1)
         return g
 
     def generate_graph(self):
