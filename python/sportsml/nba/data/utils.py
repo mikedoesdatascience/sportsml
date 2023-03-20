@@ -3,8 +3,12 @@ from sklearn.model_selection import train_test_split
 
 from .datamodule import NBAGraphDataset
 from .features import STATS_COLUMNS, OPP_STATS_COLUMNS, FEATURE_COLUMNS
-from .nodes import team_idx_map
+from .nodes import team_idx_map, team_abr_map
 from ...mongo import client, group_aggregation
+
+
+def get_team_abr_map():
+    return team_abr_map
 
 
 def process_games(games: pd.DataFrame):

@@ -1,7 +1,12 @@
 import pandas as pd
 
 from .datamodule import CBBGraphDataset
+from .nodes import team_name_map
 from ...mongo import client
+
+
+def get_team_name_map():
+    return team_name_map
 
 
 def get_games(query={}):
