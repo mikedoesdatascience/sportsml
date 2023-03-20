@@ -5,7 +5,6 @@ import torch
 import lightning.pytorch as pl
 
 from .features import GRAPH_FEATURES, FEATURE_COLUMNS
-from .utils import get_regular_season_games, get_training_data
 
 
 class NBAGameDataModule(pl.LightningDataModule):
@@ -21,8 +20,6 @@ class NBAGameDataModule(pl.LightningDataModule):
         num_workers=4
     ):
         super().__init__()
-        if df is None:
-            df = get_training_data()
         self.df = df
         self.val_df = val_df
         self.test_df = test_df

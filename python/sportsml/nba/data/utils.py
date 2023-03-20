@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from .datamodule import NBAGraphDataset
 from .features import STATS_COLUMNS, OPP_STATS_COLUMNS, FEATURE_COLUMNS
 from .nodes import team_idx_map
 from ...mongo import client, group_aggregation
@@ -65,6 +66,11 @@ def get_regular_season_games(query={}):
     df = pd.DataFrame(client.nba.games.find(query)).sort_values('GAME_DATE')
     return df
 
+
+def get_latest_graph():
+    games = get_regular_season_games({'SEASON': max(client.nba.games.distinct('SEASON'))})
+    ds = NBAGraphDataset(games)
+    return ds[-1]
 
 
 def get_regular_season_averages(date):
