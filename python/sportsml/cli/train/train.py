@@ -2,8 +2,9 @@ import hydra
 import lightning.pytorch as pl
 from omegaconf import DictConfig, OmegaConf
 
+
 @hydra.main(version_base=None, config_path="conf", config_name="conf")
-def train(cfg : DictConfig) -> None:
+def train(cfg: DictConfig) -> None:
     if cfg.seed is not None:
         pl.seed_everything(cfg.seed)
     trainer = hydra.utils.instantiate(cfg.trainer)
@@ -13,7 +14,8 @@ def train(cfg : DictConfig) -> None:
     trainer.fit(model, dm)
 
     if len(dm.test_ds):
-        trainer.test(model, dm, ckpt_path='best')
+        trainer.test(model, dm, ckpt_path="best")
+
 
 if __name__ == "__main__":
     train()

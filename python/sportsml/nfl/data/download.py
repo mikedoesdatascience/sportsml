@@ -14,7 +14,11 @@ def get_play_by_play():
 
 def get_game_totals():
     data = get_play_by_play()
-    game_totals = data.groupby(["recent_team", "season", "week"]).sum(numeric_only=True).reset_index()
+    game_totals = (
+        data.groupby(["recent_team", "season", "week"])
+        .sum(numeric_only=True)
+        .reset_index()
+    )
     return game_totals
 
 

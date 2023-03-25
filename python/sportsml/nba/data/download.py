@@ -9,6 +9,7 @@ from pymongo import ReplaceOne
 from .utils import process_games
 from ...mongo import client
 
+
 def download_games():
     games = []
     for team in tqdm.tqdm(teams.get_teams()):
@@ -22,12 +23,11 @@ def download_games():
 def games_from_last_date():
     games = []
     last_date = datetime.date.fromisoformat(
-        client.nba.games.find({}).sort('GAME_DATE', -1).limit(1).next()['GAME_DATE']
-    ).strftime('%m/%d/%Y')
+        client.nba.games.find({}).sort("GAME_DATE", -1).limit(1).next()["GAME_DATE"]
+    ).strftime("%m/%d/%Y")
     for team in tqdm.tqdm(teams.get_teams()):
         gamefinder = leaguegamefinder.LeagueGameFinder(
-            team_id_nullable=team["id"],
-            date_from_nullable=last_date
+            team_id_nullable=team["id"], date_from_nullable=last_date
         )
         games.append(gamefinder.get_data_frames()[0])
         time.sleep(0.5)
