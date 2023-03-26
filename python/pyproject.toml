@@ -17,5 +17,6 @@ dependencies = {file = ["requirements.txt"]}
 [project.scripts]
 nba_mongo_upload = "sportsml.nba.data.download:mongo_upload"
 nfl_mongo_upload = "sportsml.nfl.data.download:mongo_upload"
+odds_upload = "sportsml.odds.utils:mongo_upload"
 train = "sportsml.cli.train.train:train"
 predict = "sportsml.cli.predict.predict:predict"
