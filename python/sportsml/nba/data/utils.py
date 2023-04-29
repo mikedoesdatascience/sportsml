@@ -86,6 +86,17 @@ def process_averages(games):
     )
 
 
+def get_games(query={}):
+    query.update(
+        {
+            "SEASON_ID": {"$regex": "^2|^4"},
+            "GAME_ID": {"$regex": "^0"},
+        }
+    )
+    df = pd.DataFrame(client.nba.games.find(query)).sort_values("GAME_DATE")
+    return df
+
+
 def get_regular_season_games(query={}):
     query.update(
         {
