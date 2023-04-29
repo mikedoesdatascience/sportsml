@@ -135,6 +135,8 @@ class NBAGraphDataModule(pl.LightningDataModule):
     def __init__(
         self,
         df,
+        val_df=None,
+        test_df=None,
         feature_columns=GRAPH_FEATURES,
         target_columns=["PLUS_MINUS"],
         batch_size=64,
@@ -144,6 +146,8 @@ class NBAGraphDataModule(pl.LightningDataModule):
     ):
         super().__init__()
         self.df = df
+        self.val_df = val_df
+        self.test_df = test_df
         self.feature_columns = feature_columns
         self.target_columns = target_columns
         self.batch_size = batch_size
@@ -163,8 +167,18 @@ class NBAGraphDataModule(pl.LightningDataModule):
             self.train_ds = torch.utils.data.Subset(self.ds, train_idx.tolist())
             self.val_ds = torch.utils.data.Subset(self.ds, val_idx.tolist())
             self.test_ds = torch.utils.data.Subset(self.ds, test_idx.tolist())
+        elif self.split_type == None:
+            self.train_ds = self.ds
         else:
             raise ValueError(f"split type {self.split_type} not supported")
+        if self.val_df is not None:
+            self.val_ds = NBAGraphDataset(
+                self.val_df, self.feature_columns, self.target_columns
+            )
+        if self.test_df is not None:
+            self.test_ds = NBAGraphDataset(
+                self.test_df, self.feature_columns, self.target_columns
+            )
 
     def train_dataloader(self):
         return dgl.dataloading.GraphDataLoader(
