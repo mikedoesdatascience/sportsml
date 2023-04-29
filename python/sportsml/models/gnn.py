@@ -45,7 +45,17 @@ class GraphModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        return optimizer
+        lr_scheduler = torch.optim.lr_scheduler.SequentialLR(
+            optimizer,
+            [
+                torch.optim.lr_scheduler.LinearLR(
+                    optimizer, start_factor=0.1, end_factor=1, total_iters=2
+                ),
+                torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7),
+            ],
+            milestones=[2],
+        )
+        return {"optimizer": optimizer, "lr_scheduler": {"scheduler": lr_scheduler}}
 
     def batch_step(self, g):
         train = g.edge_subgraph(
