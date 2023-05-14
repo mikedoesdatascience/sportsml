@@ -116,14 +116,16 @@ def get_latest_graph():
     return ds[-1]
 
 
-def get_regular_season_averages(date):
-    season_id = client.nba.games.find_one({"GAME_DATE": date}).get("SEASON_ID")
+def get_season_averages(date, season=None):
+    if season is None:
+        season = client.nba.games.find_one({"GAME_DATE": date}).get("SEASON")
     result = list(
         client.nba.games.aggregate(
             [
                 {
                     "$match": {
-                        "SEASON_ID": season_id,
+                        "SEASON": season,
+                        "SEASON_ID": {"$regex": "^2|^4"},
                         "GAME_DATE": {"$lt": date},
                         "GAME_ID": {"$regex": "^0"},
                     }
