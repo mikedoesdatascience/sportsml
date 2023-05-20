@@ -1,7 +1,9 @@
-FROM python:3.10
+FROM python:3.11
 
 RUN python -m pip install -U pip
 
 COPY python/requirements.txt /tmp/requirements.txt
 
 RUN python -m pip install -U --no-cache-dir -r /tmp/requirements.txt
+
+CMD ["python", "-m", "pip", "freeze"]

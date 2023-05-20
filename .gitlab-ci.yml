@@ -4,7 +4,7 @@ stages:
 
 pypi-publish:
   stage: publish
-  image: python:3.10
+  image: python:3.11
   only:
     - tags
   needs: []
