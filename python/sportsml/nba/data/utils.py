@@ -63,17 +63,17 @@ def process_averages(games):
     games = games.sort_values("GAME_DATE")
     avg = games.copy().drop(STATS_COLUMNS + OPP_STATS_COLUMNS, axis=1)
     avg_stats = (
-        games.groupby(["SEASON_ID", "TEAM_ABBREVIATION"])[
+        games.groupby(["SEASON", "TEAM_ABBREVIATION"])[
             STATS_COLUMNS + OPP_STATS_COLUMNS
         ]
         .expanding()
         .mean()
-        .groupby(["SEASON_ID", "TEAM_ABBREVIATION"])
+        .groupby(["SEASON", "TEAM_ABBREVIATION"])
         .shift(1)
         .droplevel([0, 1])
     )
     rolling_stats = (
-        games.groupby(["SEASON_ID", "TEAM_ABBREVIATION"])[
+        games.groupby(["SEASON", "TEAM_ABBREVIATION"])[
             STATS_COLUMNS + OPP_STATS_COLUMNS
         ]
         .rolling(5, 1, closed="left")
