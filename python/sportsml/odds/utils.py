@@ -12,8 +12,8 @@ def mongo_upload():
         nba_odds = odds_client.odds("basketball_nba")
         client.nba.odds.insert_many(nba_odds)
 
-    if "americanfootbal_nfl" in sports["key"].values:
-        nfl_odds = odds_client.odds("americanfootbal_nfl")
+    if "americanfootball_nfl" in sports["key"].values:
+        nfl_odds = odds_client.odds("americanfootball_nfl")
         client.nfl.odds.insert_many(nfl_odds)
 
     if "basketball_ncaab" in sports["key"].values:
