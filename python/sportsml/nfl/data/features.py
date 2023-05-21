@@ -1,4 +1,5 @@
 STATS_COLUMNS = [
+    "score",
     "completions",
     "attempts",
     "passing_yards",

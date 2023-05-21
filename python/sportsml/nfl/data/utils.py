@@ -79,6 +79,8 @@ def merge_games_schedule(games, schedule):
 
     games["home"] = games.apply(lambda x: int(x["game_id"].endswith(x["team"])), axis=1)
 
+    games["plus_minus"] = games["score"] - games["opp_score"]
+
     return games
 
 
@@ -134,3 +136,8 @@ def featurize_games(avgs):
     avgs[opp_stats] = opp_avgs[stats]
 
     return avgs
+
+
+def get_games(query={}):
+    df = pd.DataFrame(client.nfl.games.find(query)).sort_values(["season", "week"])
+    return df
