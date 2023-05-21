@@ -2,6 +2,7 @@ captum
 dgl
 google-cloud-storage
 hydra-core
+httpx
 lightning
 nba_api
 networkx
