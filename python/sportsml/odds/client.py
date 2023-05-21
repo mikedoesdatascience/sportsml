@@ -1,4 +1,6 @@
+import datetime
 import os
+import pytz
 
 import httpx
 
@@ -26,6 +28,7 @@ class OddsAPIClient(object):
         markets: str = "h2h,spreads,totals",
         odds_format: str = "american",
         date_format: str = "iso",
+        convert_timezone: str = "US/Eastern",
     ):
         params = {
             "regions": regions,
@@ -33,4 +36,10 @@ class OddsAPIClient(object):
             "oddsFormat": odds_format,
             "dateFormat": date_format,
         }
-        return self.get(f"sports/{sport}/odds", params)
+        odds = self.get(f"sports/{sport}/odds", params)
+        for odd in odds:
+            dt = datetime.datetime.fromisoformat(odd["commence_time"])
+            odd["commence_time"] = dt.astimezone(
+                pytz.timezone(convert_timezone)
+            ).isoformat()
+        return odds
