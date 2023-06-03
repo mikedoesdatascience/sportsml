@@ -79,12 +79,10 @@ class NBAGraphDataset(object):
         df,
         feature_columns=GRAPH_FEATURES,
         target_columns=["PLUS_MINUS"],
-        recent=300,
     ):
         self.df = df
         self.feature_columns = feature_columns
         self.target_columns = target_columns
-        self.recent = recent
         seasons = df["SEASON"].unique()
         self.dates = []
         for season in seasons:
@@ -110,11 +108,8 @@ class NBAGraphDataset(object):
         date_dt = datetime.date(
             int(date_str[:4]), int(date_str[4:6]), int(date_str[6:])
         )
-        date_recent = date_dt - datetime.timedelta(days=self.recent)
-        date_recent = int(date_recent.strftime("%Y%m%d"))
         g = self.graph.edge_subgraph(
-            (self.graph.edata["date"] < date)
-            & (self.graph.edata["date"] >= date_recent),
+            (self.graph.edata["date"] < date),
             relabel_nodes=False,
         )
         g = g.edge_subgraph(
@@ -153,7 +148,6 @@ class NBAGraphDataModule(pl.LightningDataModule):
         test_df=None,
         feature_columns=GRAPH_FEATURES,
         target_columns=["PLUS_MINUS"],
-        recent=300,
         batch_size=64,
         split_type="random",
         splits=[0.8, 0.1, 0.1],
@@ -165,16 +159,18 @@ class NBAGraphDataModule(pl.LightningDataModule):
         self.test_df = test_df
         self.feature_columns = feature_columns
         self.target_columns = target_columns
-        self.recent = recent
         self.batch_size = batch_size
         self.split_type = split_type
         self.splits = splits
         self.num_workers = num_workers
 
+    def get_latest_date(self):
+        max_train_date = self.df.iloc[self.train_ds.indices]["GAME_DATE"].max()
+        max_val_date = self.df.iloc[self.val_ds.indices]["GAME_DATE"].max()
+        return max(max_train_date, max_val_date)
+
     def setup(self, stage="train"):
-        self.ds = NBAGraphDataset(
-            self.df, self.feature_columns, self.target_columns, recent=self.recent
-        )
+        self.ds = NBAGraphDataset(self.df, self.feature_columns, self.target_columns)
         if self.split_type == "random":
             self.train_ds, self.val_ds, self.test_ds = torch.utils.data.random_split(
                 self.ds, self.splits
@@ -191,17 +187,11 @@ class NBAGraphDataModule(pl.LightningDataModule):
             raise ValueError(f"split type {self.split_type} not supported")
         if self.val_df is not None:
             self.val_ds = NBAGraphDataset(
-                self.val_df,
-                self.feature_columns,
-                self.target_columns,
-                recent=self.recent,
+                self.val_df, self.feature_columns, self.target_columns
             )
         if self.test_df is not None:
             self.test_ds = NBAGraphDataset(
-                self.test_df,
-                self.feature_columns,
-                self.target_columns,
-                recent=self.recent,
+                self.test_df, self.feature_columns, self.target_columns
             )
 
     def train_dataloader(self):
