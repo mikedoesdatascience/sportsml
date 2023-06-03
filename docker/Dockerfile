@@ -11,3 +11,5 @@ COPY python /src/sportsml
 
 RUN python -m pip install --no-cache-dir /src/sportsml && \
     rm -r /src/sportsml
+
+ENV DGLBACKEND=pytorch
