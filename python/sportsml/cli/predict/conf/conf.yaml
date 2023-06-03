@@ -10,6 +10,7 @@ hydra:
   run:  
     dir: .
 
-model_dir: ???
+model: latest
+sport: ???
 sort: true
 out: preds.csv
