@@ -31,7 +31,7 @@ push:
 
 debug:
 	@docker run -it --rm \
-		-v $(shell pwd)/python/sportsml:/usr/local/lib/python3.10/site-packages/sportsml \
+		-v $(shell pwd)/python/sportsml:/usr/local/lib/python3.11/site-packages/sportsml \
 		-e MONGODB_URI \
 		-e MONGODB_USERNAME \
 		-e MONGODB_PASSWORD \
