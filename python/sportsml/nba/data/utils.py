@@ -111,9 +111,7 @@ def get_regular_season_games(query={}):
 
 
 def get_latest_graph():
-    games = get_regular_season_games(
-        {"SEASON": max(client.nba.games.distinct("SEASON"))}
-    )
+    games = get_games({"SEASON": max(client.nba.games.distinct("SEASON"))})
     ds = NBAGraphDataset(games)
     return ds[-1]
 

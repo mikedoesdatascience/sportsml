@@ -1,8 +1,14 @@
 import pandas as pd
 
 from ...mongo import client, group_aggregation
-from .features import OPP_STATS_COLUMNS, STATS_COLUMNS
+from .dataset import NFLGraphDataset
+from .features import OPP_STATS_COLUMNS, STATS_COLUMNS, GRAPH_FEATURES
 from .names import move_map
+from .nodes import team_abr_map
+
+
+def get_team_abr_map():
+    return team_abr_map
 
 
 def merge_games_schedule(games, schedule):
@@ -153,4 +159,11 @@ def get_games(query={}):
     df = pd.DataFrame(client.nfl.games.find(query)).sort_values(
         ["season", "week"]
     )
+    df = df[~df[GRAPH_FEATURES].isna().any(axis=1)]
     return df
+
+
+def get_latest_graph():
+    games = get_games({"season": max(client.nfl.games.distinct("season"))})
+    ds = NFLGraphDataset(games)
+    return ds[-1]

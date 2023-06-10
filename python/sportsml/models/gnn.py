@@ -64,10 +64,10 @@ class GraphModel(pl.LightningModule):
 
     def batch_step(self, g):
         train = g.edge_subgraph(
-            g.edata[self.train_mask] is True, relabel_nodes=False
+            g.edata[self.train_mask], relabel_nodes=False
         ).local_var()
         test = g.edge_subgraph(
-            g.edata[self.train_mask] is False, relabel_nodes=False
+            ~g.edata[self.train_mask], relabel_nodes=False
         ).local_var()
         h = self.encoder(train, train.edata[self.edge_encoder_features])
         e = test.edata[self.edge_predictor_features]
