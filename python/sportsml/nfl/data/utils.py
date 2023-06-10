@@ -79,8 +79,6 @@ def merge_games_schedule(games, schedule):
 
     games["home"] = games.apply(lambda x: int(x["game_id"].endswith(x["team"])), axis=1)
 
-    games["plus_minus"] = games["score"] - games["opp_score"]
-
     return games
 
 
