@@ -29,6 +29,9 @@ build-prod:
 push:
 	@docker push $(REGISTRY):$(VERSION)
 
+pull:
+	@docker pull $(REGISTRY):$(VERSION)
+
 debug:
 	@docker run -it --rm \
 		-v $(shell pwd)/python/sportsml:/usr/local/lib/python3.11/site-packages/sportsml \
