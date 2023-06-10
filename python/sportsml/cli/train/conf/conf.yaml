@@ -1,6 +1,6 @@
 defaults:
   - model: gnn
-  - dm: cbb
+  - dm: nfl
   - trainer: early_stopping
   - _self_
 
