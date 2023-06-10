@@ -1,6 +1,6 @@
 import hydra
 import lightning.pytorch as pl
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
 
 @hydra.main(version_base=None, config_path="conf", config_name="conf")

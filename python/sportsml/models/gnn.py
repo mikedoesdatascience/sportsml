@@ -33,7 +33,9 @@ class GraphModel(pl.LightningModule):
         self.precision_score = torchmetrics.classification.MulticlassPrecision(
             num_classes=2
         )
-        self.recall_score = torchmetrics.classification.MulticlassRecall(num_classes=2)
+        self.recall_score = torchmetrics.classification.MulticlassRecall(
+            num_classes=2
+        )
 
         self.save_hyperparameters(
             "encoder",
@@ -55,14 +57,17 @@ class GraphModel(pl.LightningModule):
             ],
             milestones=[2],
         )
-        return {"optimizer": optimizer, "lr_scheduler": {"scheduler": lr_scheduler}}
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {"scheduler": lr_scheduler},
+        }
 
     def batch_step(self, g):
         train = g.edge_subgraph(
-            g.edata[self.train_mask] == True, relabel_nodes=False
+            g.edata[self.train_mask] is True, relabel_nodes=False
         ).local_var()
         test = g.edge_subgraph(
-            g.edata[self.train_mask] == False, relabel_nodes=False
+            g.edata[self.train_mask] is False, relabel_nodes=False
         ).local_var()
         h = self.encoder(train, train.edata[self.edge_encoder_features])
         e = test.edata[self.edge_predictor_features]

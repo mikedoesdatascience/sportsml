@@ -3,7 +3,9 @@ import torch
 
 
 class GCNEncoder(torch.nn.Module):
-    def __init__(self, in_feats, out_feats=100, depth=3, dropout=0.1, use_weight=False):
+    def __init__(
+        self, in_feats, out_feats=100, depth=3, dropout=0.1, use_weight=False
+    ):
         super().__init__()
         self.use_weight = use_weight
         self.layer_init = torch.nn.Sequential(
@@ -35,19 +37,27 @@ class GCNEncoder(torch.nn.Module):
         g.edata["f"] = self.layer_init(e)
         if self.use_weight:
             g.edata["f"] = g.edata["f"] * g.edata["w"]
-        g.update_all(dgl.function.copy_e("f", "m"), dgl.function.reducer.mean("m", "f"))
+        g.update_all(
+            dgl.function.copy_e("f", "m"), dgl.function.reducer.mean("m", "f")
+        )
 
         g.ndata["h"] = g.ndata["f"]
 
         src, dst = g.edges()
         for layer in self.layers:
             x = torch.cat(
-                [g.ndata["h"][src], g.edata["f"], g.edata["p"], g.ndata["h"][dst]],
+                [
+                    g.ndata["h"][src],
+                    g.edata["f"],
+                    g.edata["p"],
+                    g.ndata["h"][dst],
+                ],
                 dim=1,
             )
             x = layer(x)
             g.edata["h"] = x
             g.update_all(
-                dgl.function.copy_e("h", "m"), dgl.function.reducer.mean("m", "h")
+                dgl.function.copy_e("h", "m"),
+                dgl.function.reducer.mean("m", "h"),
             )
         return self.layer_out(torch.cat([g.ndata["f"], g.ndata["h"]], dim=1))

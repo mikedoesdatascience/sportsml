@@ -1,7 +1,6 @@
 import io
 import pickle
 import pathlib
-from bson import Binary
 
 from ..models.gnn import GraphModel
 

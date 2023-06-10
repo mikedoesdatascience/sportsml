@@ -19,7 +19,9 @@ def merge_games_schedule(games, schedule):
     )
 
     schedule_home = schedule.copy()
-    schedule_home.columns = schedule_home.columns.map(lambda x: x.replace("home_", ""))
+    schedule_home.columns = schedule_home.columns.map(
+        lambda x: x.replace("home_", "")
+    )
     schedule_home.columns = schedule_home.columns.map(
         lambda x: x.replace("away_", "opp_")
     )
@@ -27,7 +29,9 @@ def merge_games_schedule(games, schedule):
     schedule_home = schedule_home.set_index(["season", "week", "team"])
 
     schedule_away = schedule.copy()
-    schedule_away.columns = schedule_away.columns.map(lambda x: x.replace("away_", ""))
+    schedule_away.columns = schedule_away.columns.map(
+        lambda x: x.replace("away_", "")
+    )
     schedule_away.columns = schedule_away.columns.map(
         lambda x: x.replace("home_", "opp_")
     )
@@ -52,7 +56,9 @@ def merge_games_schedule(games, schedule):
     games.result = games.score - games.opp_score
 
     games["_id"] = (
-        games[["season", "week", "team", "opp_team"]].astype(str).agg("-".join, axis=1)
+        games[["season", "week", "team", "opp_team"]]
+        .astype(str)
+        .agg("-".join, axis=1)
     )
 
     first_game = games.drop_duplicates(subset=["game_id"], keep="first")
@@ -77,7 +83,9 @@ def merge_games_schedule(games, schedule):
         ]
     )
 
-    games["home"] = games.apply(lambda x: int(x["game_id"].endswith(x["team"])), axis=1)
+    games["home"] = games.apply(
+        lambda x: int(x["game_id"].endswith(x["team"])), axis=1
+    )
 
     return games
 
@@ -119,7 +127,12 @@ def featurize_games(avgs):
     opp_avgs = avgs.copy()
     opp_avgs["_id"] = opp_avgs.apply(
         lambda row: "-".join(
-            [str(row["season"]), str(row["week"]), row["opp_team"], row["team"]]
+            [
+                str(row["season"]),
+                str(row["week"]),
+                row["opp_team"],
+                row["team"],
+            ]
         ),
         axis=1,
     )
@@ -137,5 +150,7 @@ def featurize_games(avgs):
 
 
 def get_games(query={}):
-    df = pd.DataFrame(client.nfl.games.find(query)).sort_values(["season", "week"])
+    df = pd.DataFrame(client.nfl.games.find(query)).sort_values(
+        ["season", "week"]
+    )
     return df

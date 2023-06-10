@@ -12,7 +12,9 @@ def load_models(model_dir, model_class=GraphModel):
     return [model_class.load_from_checkpoint(ckpt) for ckpt in ckpts]
 
 
-def ensemble_predict(graph, models=None, model_dir=None, model_class=GraphModel):
+def ensemble_predict(
+    graph, models=None, model_dir=None, model_class=GraphModel
+):
     if not models and model_dir is not None:
         models = load_models(model_dir=model_dir, model_class=model_class)
 

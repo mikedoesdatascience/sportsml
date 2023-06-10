@@ -11,5 +11,7 @@ class NNEncoder(torch.nn.Module):
     def forward(self, g, e):
         g = g.local_var()
         g.edata["f"] = torch.nn.functional.relu(self.w(self.norm(e)))
-        g.update_all(dgl.function.copy_e("f", "m"), dgl.function.reducer.mean("m", "h"))
+        g.update_all(
+            dgl.function.copy_e("f", "m"), dgl.function.reducer.mean("m", "h")
+        )
         return g.ndata["h"]

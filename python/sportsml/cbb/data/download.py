@@ -6,10 +6,17 @@ from ...mongo import client
 
 
 def format_games(games):
-    """Formats kaggle data into mongodb formatted data. Download file with `kaggle competitions download -c march-machine-learning-mania-2023`"""
-    col_renamer = {col: col.lstrip("W") for col in games.columns if col.startswith("W")}
+    """Formats kaggle data into mongodb formatted data. Download file with
+    `kaggle competitions download -c march-machine-learning-mania-2023`"""
+    col_renamer = {
+        col: col.lstrip("W") for col in games.columns if col.startswith("W")
+    }
     col_renamer.update(
-        {col: col.lstrip("L") + "_OPP" for col in games.columns if col.startswith("L")}
+        {
+            col: col.lstrip("L") + "_OPP"
+            for col in games.columns
+            if col.startswith("L")
+        }
     )
 
     games = games.rename(columns=col_renamer)
@@ -17,7 +24,9 @@ def format_games(games):
 
     opp_games = games.copy()[["Season", "DayNum", "NumOT"]]
     opp_games["Loc"] = (games["Loc"] - 1).abs()
-    opp_games[["TeamID", "TeamID_OPP"]] = games[["TeamID_OPP", "TeamID"]].values
+    opp_games[["TeamID", "TeamID_OPP"]] = games[
+        ["TeamID_OPP", "TeamID"]
+    ].values
     opp_games[STATS_COLUMNS] = games[OPP_STATS_COLUMNS].values
     opp_games[OPP_STATS_COLUMNS] = games[STATS_COLUMNS].values
 
@@ -40,4 +49,5 @@ def mongo_upload(games):
         pymongo.ReplaceOne({"_id": game["_id"]}, game, upsert=True)
         for game in games.to_dict(orient="records")
     ]
-    result = client.cbb.games.bulk_write(updates)
+    _ = client.cbb.games.bulk_write(updates)
+    return

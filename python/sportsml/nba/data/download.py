@@ -13,7 +13,9 @@ from ...mongo import client
 def download_games():
     games = []
     for team in tqdm.tqdm(teams.get_teams()):
-        gamefinder = leaguegamefinder.LeagueGameFinder(team_id_nullable=team["id"])
+        gamefinder = leaguegamefinder.LeagueGameFinder(
+            team_id_nullable=team["id"]
+        )
         games.append(gamefinder.get_data_frames()[0])
         # try not to overload API service
         time.sleep(0.5)
@@ -23,7 +25,10 @@ def download_games():
 def games_from_last_date():
     games = []
     last_date = datetime.date.fromisoformat(
-        client.nba.games.find({}).sort("GAME_DATE", -1).limit(1).next()["GAME_DATE"]
+        client.nba.games.find({})
+        .sort("GAME_DATE", -1)
+        .limit(1)
+        .next()["GAME_DATE"]
     ).strftime("%m/%d/%Y")
     for team in tqdm.tqdm(teams.get_teams()):
         gamefinder = leaguegamefinder.LeagueGameFinder(
@@ -44,4 +49,5 @@ def mongo_upload():
         ReplaceOne({"_id": game["_id"]}, game, upsert=True)
         for game in games.to_dict(orient="records")
     ]
-    result = client.nba.games.bulk_write(updates)
+    _ = client.nba.games.bulk_write(updates)
+    return

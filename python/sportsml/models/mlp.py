@@ -25,7 +25,9 @@ class MLP(pl.LightningModule):
         self.precision_score = torchmetrics.classification.MulticlassPrecision(
             num_classes=2
         )
-        self.recall_score = torchmetrics.classification.MulticlassRecall(num_classes=2)
+        self.recall_score = torchmetrics.classification.MulticlassRecall(
+            num_classes=2
+        )
 
         self.save_hyperparameters("in_feats", "dims")
 

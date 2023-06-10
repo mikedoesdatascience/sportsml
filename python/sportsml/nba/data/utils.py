@@ -54,7 +54,9 @@ def process_games(games: pd.DataFrame):
     games["src"] = games["TEAM_ID_OPP"].map(team_idx_map)
     games["target"] = games["TEAM_ID"].map(team_idx_map)
 
-    games["SEASON"] = games["SEASON_ID"].astype(str).str.slice(start=1).astype(int)
+    games["SEASON"] = (
+        games["SEASON_ID"].astype(str).str.slice(start=1).astype(int)
+    )
 
     return games
 

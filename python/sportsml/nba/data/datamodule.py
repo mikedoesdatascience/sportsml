@@ -1,7 +1,5 @@
-import datetime
 import dgl
 import numpy as np
-import pandas as pd
 import torch
 import lightning.pytorch as pl
 
@@ -40,9 +38,11 @@ class NBAGameDataModule(pl.LightningDataModule):
     def setup(self, stage="train"):
         if self.val_df is None and self.test_df is None:
             self.ds = self.df_to_dataset(self.df)
-            self.train_ds, self.val_ds, self.test_ds = torch.utils.data.random_split(
-                self.ds, self.splits
-            )
+            (
+                self.train_ds,
+                self.val_ds,
+                self.test_ds,
+            ) = torch.utils.data.random_split(self.ds, self.splits)
         else:
             self.train_ds = self.df_to_dataset(self.df)
             self.val_ds = self.df_to_dataset(self.val_df)
@@ -88,7 +88,10 @@ class NBAGraphDataset(object):
         for season in seasons:
             s = df[df["SEASON"] == season]
             for date in s["GAME_DATE"].unique():
-                if s[s["GAME_DATE"] < date]["TEAM_ABBREVIATION"].unique().size == 30:
+                if (
+                    s[s["GAME_DATE"] < date]["TEAM_ABBREVIATION"].unique().size
+                    == 30
+                ):
                     self.dates.extend(
                         s[s["GAME_DATE"] >= date]["GAME_DATE"]
                         .str.replace("-", "")
@@ -104,10 +107,6 @@ class NBAGraphDataset(object):
 
     def __getitem__(self, idx):
         date = self.dates[idx]
-        date_str = str(date)
-        date_dt = datetime.date(
-            int(date_str[:4]), int(date_str[4:6]), int(date_str[6:])
-        )
         g = self.graph.edge_subgraph(
             (self.graph.edata["date"] < date),
             relabel_nodes=False,
@@ -116,9 +115,9 @@ class NBAGraphDataset(object):
             g.edata["season"] == g.edata["season"].max(), relabel_nodes=False
         )
         g.edata["train"] = g.edata["date"] != g.edata["date"].max()
-        g.edata["w"] = (1 / (g.edata["date"].max() + 1 - g.edata["date"])).reshape(
-            -1, 1
-        )
+        g.edata["w"] = (
+            1 / (g.edata["date"].max() + 1 - g.edata["date"])
+        ).reshape(-1, 1)
         return g
 
     def generate_graph(self):
@@ -129,14 +128,20 @@ class NBAGraphDataset(object):
             ),
             num_nodes=30,
         )
-        g.edata["f"] = torch.from_numpy(self.df[self.feature_columns].values).float()
-        g.edata["y"] = torch.from_numpy(self.df[self.target_columns].values).float()
+        g.edata["f"] = torch.from_numpy(
+            self.df[self.feature_columns].values
+        ).float()
+        g.edata["y"] = torch.from_numpy(
+            self.df[self.target_columns].values
+        ).float()
         g.edata["p"] = torch.from_numpy(self.df[["HOME"]].values).float()
         g.edata["rest"] = torch.from_numpy(self.df[["REST"]].values).float()
         g.edata["date"] = torch.from_numpy(
             self.df["GAME_DATE"].str.replace("-", "").values.astype(int)
         )
-        g.edata["season"] = torch.from_numpy(self.df["SEASON"].values.astype(int))
+        g.edata["season"] = torch.from_numpy(
+            self.df["SEASON"].values.astype(int)
+        )
         return g
 
 
@@ -170,18 +175,28 @@ class NBAGraphDataModule(pl.LightningDataModule):
         return max(max_train_date, max_val_date)
 
     def setup(self, stage="train"):
-        self.ds = NBAGraphDataset(self.df, self.feature_columns, self.target_columns)
+        self.ds = NBAGraphDataset(
+            self.df, self.feature_columns, self.target_columns
+        )
         if self.split_type == "random":
-            self.train_ds, self.val_ds, self.test_ds = torch.utils.data.random_split(
-                self.ds, self.splits
-            )
+            (
+                self.train_ds,
+                self.val_ds,
+                self.test_ds,
+            ) = torch.utils.data.random_split(self.ds, self.splits)
         elif self.split_type == "time":
-            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[:2]
-            train_idx, val_idx, test_idx = np.array_split(np.arange(len(self.ds)), idx)
-            self.train_ds = torch.utils.data.Subset(self.ds, train_idx.tolist())
+            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[
+                :2
+            ]
+            train_idx, val_idx, test_idx = np.array_split(
+                np.arange(len(self.ds)), idx
+            )
+            self.train_ds = torch.utils.data.Subset(
+                self.ds, train_idx.tolist()
+            )
             self.val_ds = torch.utils.data.Subset(self.ds, val_idx.tolist())
             self.test_ds = torch.utils.data.Subset(self.ds, test_idx.tolist())
-        elif self.split_type == None:
+        elif self.split_type is None:
             self.train_ds = self.ds
         else:
             raise ValueError(f"split type {self.split_type} not supported")
