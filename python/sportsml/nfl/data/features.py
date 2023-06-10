@@ -1,5 +1,4 @@
 STATS_COLUMNS = [
-    "score",
     "completions",
     "attempts",
     "passing_yards",
@@ -37,3 +36,5 @@ FEATURE_COLUMNS = (
     + [f"{stat}_opp" for stat in STATS_COLUMNS + OPP_STATS_COLUMNS]
     + ["home", "rest", "opp_rest"]
 )
+
+GRAPH_FEATURES = STATS_COLUMNS + OPP_STATS_COLUMNS
