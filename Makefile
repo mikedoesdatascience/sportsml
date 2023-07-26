@@ -1,36 +1,40 @@
 REGISTRY ?= registry.gitlab.com/mikedoesdatascience/sportsml
 VERSION ?= $(shell cd python && python3 setup.py --version)
 
+PLATFORM ?= cpu
+
 default: build
 
 pip-lock:
 	@docker build \
 		--no-cache \
-		-t $(REGISTRY):lock \
-		-f docker/Dockerfile.lock \
+		-t $(REGISTRY):lock-$(PLATFORM) \
+		-f docker/$(PLATFORM)/Dockerfile.lock \
 		.
 	@docker run -it --rm \
-		$(REGISTRY):lock \
-			> python/requirements.lock
+		$(REGISTRY):lock-$(PLATFORM) \
+			> python/requirements.$(PLATFORM).lock
 	
 
 build:
 	@docker build \
-		-t $(REGISTRY):$(VERSION) \
-		-f docker/Dockerfile \
+		-t $(REGISTRY):$(VERSION)-$(PLATFORM) \
+		--build-arg=PLATFORM=$(PLATFORM) \
+		-f docker/$(PLATFORM)/Dockerfile \
 		.
 
 build-prod:
 	@docker build \
-		-t $(REGISTRY):$(VERSION) \
-		-f docker/Dockerfile.prod \
+		-t $(REGISTRY):$(VERSION)-$(PLATFORM) \
+		--build-arg=PLATFORM=$(PLATFORM) \
+		-f docker/$(PLATFORM)/Dockerfile.prod \
 		.
 
 push:
-	@docker push $(REGISTRY):$(VERSION)
+	@docker push $(REGISTRY):$(VERSION)-$(PLATFORM)
 
 pull:
-	@docker pull $(REGISTRY):$(VERSION)
+	@docker pull $(REGISTRY):$(VERSION)-$(PLATFORM)
 
 debug:
 	@docker run -it --rm \
@@ -42,7 +46,7 @@ debug:
 		-w /project \
 		--entrypoint bash \
 		--shm-size=8gb \
-		$(REGISTRY):$(VERSION)
+		$(REGISTRY):$(VERSION)-$(PLATFORM)
 
 run:
 	@docker run -it --rm \
@@ -52,19 +56,19 @@ run:
 		$(VOLUMES) \
 		-w /project \
 		--entrypoint bash \
-		$(REGISTRY):$(VERSION)
+		$(REGISTRY):$(VERSION)-$(PLATFORM)
 
 upload:
 	@docker run -it --rm \
 		-e MONGODB_URI \
 		-e MONGODB_USERNAME \
 		-e MONGODB_PASSWORD \
-		$(REGISTRY):$(VERSION) \
+		$(REGISTRY):$(VERSION)-$(PLATFORM) \
 			nba_mongo_upload
 
 	@docker run -it --rm \
 		-e MONGODB_URI \
 		-e MONGODB_USERNAME \
 		-e MONGODB_PASSWORD \
-		$(REGISTRY):$(VERSION) \
+		$(REGISTRY):$(VERSION)-$(PLATFORM) \
 			nfl_mongo_upload

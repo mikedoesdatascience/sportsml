@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+RUN python -m pip install -U pip
+
+COPY python/requirements.${PLATFORM}.lock /tmp/requirements.${PLATFORM}.lock
+
+RUN python -m pip install -U --no-cache-dir \
+        --extra-index-url https://download.pytorch.org/whl/cpu \
+        -f https://data.dgl.ai/wheels/repo.html \
+        -r /tmp/requirements.${PLATFORM}.lock && \
+    rm /tmp/requirements.${PLATFORM}.lock && \
+    python -m pip install -U --no-cache-dir sportsml
+
+ENV DGLBACKEND=pytorch
