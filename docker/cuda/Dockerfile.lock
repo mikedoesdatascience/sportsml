@@ -1,12 +1,11 @@
 FROM python:3.11-slim
 
-RUN python -m pip install -U pip
-
-COPY python/requirements.txt /tmp/requirements.txt
-
-RUN python -m pip install -U --no-cache-dir \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=python/requirements.txt,target=requirements.txt \
+    python -m pip install -U pip && \
+    python -m pip install -U \
         --extra-index-url https://download.pytorch.org/whl/cu118 \
         -f https://data.dgl.ai/wheels/cu118/repo.html \
-        -r /tmp/requirements.txt
+        -r requirements.txt
 
 CMD ["python", "-m", "pip", "freeze"]

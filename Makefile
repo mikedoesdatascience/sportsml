@@ -7,7 +7,6 @@ default: build
 
 pip-lock:
 	@docker build \
-		--no-cache \
 		-t $(REGISTRY):lock-$(PLATFORM) \
 		-f docker/$(PLATFORM)/Dockerfile.lock \
 		.
