@@ -7,9 +7,9 @@ default: build
 
 pip-lock:
 	@docker build \
-		--no-cache \
+		--build-arg PLATFORM=$(PLATFORM) \
 		-t $(REGISTRY):lock-$(PLATFORM) \
-		-f docker/$(PLATFORM)/Dockerfile.lock \
+		-f docker/Dockerfile.lock \
 		.
 	@docker run -it --rm \
 		$(REGISTRY):lock-$(PLATFORM) \
@@ -18,16 +18,16 @@ pip-lock:
 
 build:
 	@docker build \
-		-t $(REGISTRY):$(VERSION)-$(PLATFORM) \
 		--build-arg=PLATFORM=$(PLATFORM) \
-		-f docker/$(PLATFORM)/Dockerfile \
+		-t $(REGISTRY):$(VERSION)-$(PLATFORM) \
+		-f docker/Dockerfile \
 		.
 
 build-prod:
 	@docker build \
-		-t $(REGISTRY):$(VERSION)-$(PLATFORM) \
 		--build-arg=PLATFORM=$(PLATFORM) \
-		-f docker/$(PLATFORM)/Dockerfile.prod \
+		-t $(REGISTRY):$(VERSION)-$(PLATFORM) \
+		-f docker/Dockerfile.prod \
 		.
 
 push:
