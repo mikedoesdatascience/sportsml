@@ -23,6 +23,13 @@ build:
 		-f docker/Dockerfile \
 		.
 
+build-base:
+	@docker build \
+		--build-arg=PLATFORM=$(PLATFORM) \
+		-t $(REGISTRY):$(VERSION)-$(PLATFORM)-base \
+		-f docker/Dockerfile.base \
+		.
+
 build-prod:
 	@docker build \
 		--build-arg=PLATFORM=$(PLATFORM) \
