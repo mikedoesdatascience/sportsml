@@ -111,7 +111,13 @@ def get_regular_season_games(query={}):
 
 
 def get_latest_graph():
-    games = get_games({"SEASON": max(client.nba.games.distinct("SEASON"))})
+    query = {
+        "SEASON_ID": {"$regex": "^2|^4"},
+        "GAME_ID": {"$regex": "^0"},
+    }
+    games = get_games(
+        {"SEASON": max(client.nba.games.find(query).distinct("SEASON"))}
+    )
     ds = NBAGraphDataset(games)
     return ds[-1]
 
