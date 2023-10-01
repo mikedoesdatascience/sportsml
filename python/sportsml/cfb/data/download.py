@@ -21,6 +21,7 @@ def calendar(year: int):
         params={"year": year},
         headers={"Authorization": f"Bearer {CFBD_API_KEY}"},
     )
+    resp.raise_for_status()
     return resp.json()
 
 
@@ -30,6 +31,7 @@ def download_games(year: int, week: int, season_type="regular"):
         params={"year": year, "week": week, "seasonType": season_type},
         headers={"Authorization": f"Bearer {CFBD_API_KEY}"},
     )
+    resp.raise_for_status()
     games = pd.concat([game_to_dataframe(game) for game in resp.json()])
     games["season"] = year
     games["week"] = week
