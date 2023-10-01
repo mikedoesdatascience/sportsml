@@ -123,4 +123,4 @@ def mongo_upload():
         for game in games.to_dict(orient="records")
     ]
     _ = client.cfb.games.bulk_write(updates)
-    return games
+    return
