@@ -97,6 +97,7 @@ def game_to_dataframe(game):
         ],
         axis=0,
     )
+    df["result"] = df["points"] - df["opp_points"]
     return df.reset_index(drop=True)
 
 
