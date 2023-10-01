@@ -15,6 +15,7 @@ dynamic = ["dependencies"]
 dependencies = {file = ["requirements.txt"]}
 
 [project.scripts]
+cfb_mongo_upload = "sportsml.cfb.data.download:mongo_upload"
 nba_mongo_upload = "sportsml.nba.data.download:mongo_upload"
 nfl_mongo_upload = "sportsml.nfl.data.download:mongo_upload"
 odds_upload = "sportsml.odds.utils:mongo_upload"
