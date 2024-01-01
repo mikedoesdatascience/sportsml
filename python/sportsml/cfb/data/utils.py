@@ -11,10 +11,10 @@ def get_team_abr_map():
 
 
 def get_games(query={}):
-    df = pd.DataFrame(client.cfb.games.find(query)).sort_values(
-        ["season", "week"]
-    )
+    df = pd.DataFrame(client.cfb.games.find(query)).sort_values(["season", "week"])
     df = df[~df[GRAPH_FEATURES].isna().any(axis=1)]
+    df["won"] = df["result"] > 0
+    df["home"] = df["home"].astype(bool)
     return df
 
 

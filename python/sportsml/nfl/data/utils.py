@@ -1,7 +1,8 @@
 import pandas as pd
 
 from ...mongo import client, group_aggregation
-from .dataset import NFLGraphDataset
+from ...utils.heterograph import heterograph_encoder
+from .dataset import NFLGraphDataset, NFLHeteroGraphDataset
 from .features import OPP_STATS_COLUMNS, STATS_COLUMNS, GRAPH_FEATURES
 from .names import move_map
 from .nodes import team_abr_map
@@ -25,9 +26,7 @@ def merge_games_schedule(games, schedule):
     )
 
     schedule_home = schedule.copy()
-    schedule_home.columns = schedule_home.columns.map(
-        lambda x: x.replace("home_", "")
-    )
+    schedule_home.columns = schedule_home.columns.map(lambda x: x.replace("home_", ""))
     schedule_home.columns = schedule_home.columns.map(
         lambda x: x.replace("away_", "opp_")
     )
@@ -35,9 +34,7 @@ def merge_games_schedule(games, schedule):
     schedule_home = schedule_home.set_index(["season", "week", "team"])
 
     schedule_away = schedule.copy()
-    schedule_away.columns = schedule_away.columns.map(
-        lambda x: x.replace("away_", "")
-    )
+    schedule_away.columns = schedule_away.columns.map(lambda x: x.replace("away_", ""))
     schedule_away.columns = schedule_away.columns.map(
         lambda x: x.replace("home_", "opp_")
     )
@@ -62,9 +59,7 @@ def merge_games_schedule(games, schedule):
     games.result = games.score - games.opp_score
 
     games["_id"] = (
-        games[["season", "week", "team", "opp_team"]]
-        .astype(str)
-        .agg("-".join, axis=1)
+        games[["season", "week", "team", "opp_team"]].astype(str).agg("-".join, axis=1)
     )
 
     first_game = games.drop_duplicates(subset=["game_id"], keep="first")
@@ -89,9 +84,7 @@ def merge_games_schedule(games, schedule):
         ]
     )
 
-    games["home"] = games.apply(
-        lambda x: int(x["game_id"].endswith(x["team"])), axis=1
-    )
+    games["home"] = games.apply(lambda x: int(x["game_id"].endswith(x["team"])), axis=1)
 
     return games
 
@@ -156,14 +149,21 @@ def featurize_games(avgs):
 
 
 def get_games(query={}):
-    df = pd.DataFrame(client.nfl.games.find(query)).sort_values(
-        ["season", "week"]
-    )
+    df = pd.DataFrame(client.nfl.games.find(query)).sort_values(["season", "week"])
     df = df[~df[GRAPH_FEATURES].isna().any(axis=1)]
+    df["won"] = df["score"] > df["opp_score"]
+    df["home"] = df["home"].astype(bool)
+    df["y"] = df["score"] - df["opp_score"]
     return df
 
 
 def get_latest_graph():
     games = get_games({"season": max(client.nfl.games.distinct("season"))})
-    ds = NFLGraphDataset(games)
-    return ds[-1]
+    graph = heterograph_encoder(
+        games["src"].values,
+        games["target"].values,
+        feat=games[GRAPH_FEATURES].values,
+        won_mask=games["won"].values,
+        num_nodes=32,
+    )
+    return graph

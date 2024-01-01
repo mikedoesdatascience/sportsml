@@ -1,9 +1,39 @@
+from typing import List
+
 import dgl
 import numpy as np
+import pandas as pd
 import torch
 import lightning.pytorch as pl
 
 from .features import GRAPH_FEATURES, FEATURE_COLUMNS
+from ...utils.datamodule import HeteroGraphDataModule
+
+
+class NBAHeteroGraphDataModule(HeteroGraphDataModule):
+    def __init__(
+        self,
+        games: pd.DataFrame,
+        batch_size: int = 4,
+        split_type: str = "random",
+        splits: List[int] = [0.8, 0.1, 0.1],
+        num_workers: int = 4,
+    ):
+        super().__init__(
+            games=games,
+            feature_columns=GRAPH_FEATURES,
+            target_columns=["y"],
+            win_column="won",
+            home_column="home",
+            season_column="SEASON",
+            date_column="GAME_DATE",
+            team_column="TEAM_ABBREVIATION",
+            num_nodes=30,
+            batch_size=batch_size,
+            split_type=split_type,
+            splits=splits,
+            num_workers=num_workers,
+        )
 
 
 class NBAGameDataModule(pl.LightningDataModule):
@@ -88,10 +118,7 @@ class NBAGraphDataset(object):
         for season in seasons:
             s = df[df["SEASON"] == season]
             for date in s["GAME_DATE"].unique():
-                if (
-                    s[s["GAME_DATE"] < date]["TEAM_ABBREVIATION"].unique().size
-                    == 30
-                ):
+                if s[s["GAME_DATE"] < date]["TEAM_ABBREVIATION"].unique().size == 30:
                     self.dates.extend(
                         s[s["GAME_DATE"] >= date]["GAME_DATE"]
                         .str.replace("-", "")
@@ -115,9 +142,9 @@ class NBAGraphDataset(object):
             g.edata["season"] == g.edata["season"].max(), relabel_nodes=False
         )
         g.edata["train"] = g.edata["date"] != g.edata["date"].max()
-        g.edata["w"] = (
-            1 / (g.edata["date"].max() + 1 - g.edata["date"])
-        ).reshape(-1, 1)
+        g.edata["w"] = (1 / (g.edata["date"].max() + 1 - g.edata["date"])).reshape(
+            -1, 1
+        )
         return g
 
     def generate_graph(self):
@@ -128,20 +155,14 @@ class NBAGraphDataset(object):
             ),
             num_nodes=30,
         )
-        g.edata["f"] = torch.from_numpy(
-            self.df[self.feature_columns].values
-        ).float()
-        g.edata["y"] = torch.from_numpy(
-            self.df[self.target_columns].values
-        ).float()
+        g.edata["f"] = torch.from_numpy(self.df[self.feature_columns].values).float()
+        g.edata["y"] = torch.from_numpy(self.df[self.target_columns].values).float()
         g.edata["p"] = torch.from_numpy(self.df[["HOME"]].values).float()
         g.edata["rest"] = torch.from_numpy(self.df[["REST"]].values).float()
         g.edata["date"] = torch.from_numpy(
             self.df["GAME_DATE"].str.replace("-", "").values.astype(int)
         )
-        g.edata["season"] = torch.from_numpy(
-            self.df["SEASON"].values.astype(int)
-        )
+        g.edata["season"] = torch.from_numpy(self.df["SEASON"].values.astype(int))
         return g
 
 
@@ -175,9 +196,7 @@ class NBAGraphDataModule(pl.LightningDataModule):
         return max(max_train_date, max_val_date)
 
     def setup(self, stage="train"):
-        self.ds = NBAGraphDataset(
-            self.df, self.feature_columns, self.target_columns
-        )
+        self.ds = NBAGraphDataset(self.df, self.feature_columns, self.target_columns)
         if self.split_type == "random":
             (
                 self.train_ds,
@@ -185,15 +204,9 @@ class NBAGraphDataModule(pl.LightningDataModule):
                 self.test_ds,
             ) = torch.utils.data.random_split(self.ds, self.splits)
         elif self.split_type == "time":
-            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[
-                :2
-            ]
-            train_idx, val_idx, test_idx = np.array_split(
-                np.arange(len(self.ds)), idx
-            )
-            self.train_ds = torch.utils.data.Subset(
-                self.ds, train_idx.tolist()
-            )
+            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[:2]
+            train_idx, val_idx, test_idx = np.array_split(np.arange(len(self.ds)), idx)
+            self.train_ds = torch.utils.data.Subset(self.ds, train_idx.tolist())
             self.val_ds = torch.utils.data.Subset(self.ds, val_idx.tolist())
             self.test_ds = torch.utils.data.Subset(self.ds, test_idx.tolist())
         elif self.split_type is None:
