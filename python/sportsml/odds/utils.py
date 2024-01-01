@@ -23,3 +23,30 @@ def mongo_upload():
     if "americanfootball_ncaaf" in sports["key"].values:
         cfb_odds = odds_client.odds("americanfootball_ncaaf")
         client.cfb.odds.insert_many(cfb_odds)
+
+
+def get_lines(sport, query={}):
+    lines = pd.DataFrame(
+        client[sport].odds.aggregate(
+            [
+                {"$match": query},
+                {"$unwind": "$bookmakers"},
+                {"$unwind": "$bookmakers.markets"},
+            ]
+        )
+    )
+    return lines
+
+
+def lines_to_dataframe(lines):
+    lines = pd.concat(
+        [lines.drop("bookmakers", axis=1), pd.DataFrame(lines["bookmakers"].tolist())],
+        axis=1,
+    )
+    lines = lines.rename(columns={"key": "bookmaker"})
+
+    lines = pd.concat(
+        [lines.drop("markets", axis=1), pd.DataFrame(lines["markets"].tolist())], axis=1
+    )
+    lines = lines.rename(columns={"key": "market"})
+    return lines
