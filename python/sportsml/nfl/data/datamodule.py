@@ -1,10 +1,40 @@
+from typing import List
+
 import dgl
 import lightning.pytorch as pl
 import numpy as np
+import pandas as pd
 import torch
 
 from .dataset import NFLGraphDataset
 from .features import GRAPH_FEATURES
+from ...utils.datamodule import HeteroGraphDataModule
+
+
+class NFLHeteroGraphDataModule(HeteroGraphDataModule):
+    def __init__(
+        self,
+        games: pd.DataFrame,
+        batch_size: int = 4,
+        split_type: str = "random",
+        splits: List[int] = [0.8, 0.1, 0.1],
+        num_workers: int = 4,
+    ):
+        super().__init__(
+            games=games,
+            feature_columns=GRAPH_FEATURES,
+            target_columns=["y"],
+            win_column="won",
+            home_column="home",
+            season_column="season",
+            date_column="week",
+            team_column="team",
+            num_nodes=32,
+            batch_size=batch_size,
+            split_type=split_type,
+            splits=splits,
+            num_workers=num_workers,
+        )
 
 
 class NFLGraphDataModule(pl.LightningDataModule):

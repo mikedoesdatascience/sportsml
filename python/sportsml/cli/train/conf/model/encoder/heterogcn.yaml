@@ -1,0 +1,5 @@
+_target_: sportsml.layers.gnn.encoder.heterogcn.HeteroGCNEncoder
+in_feats: 54
+out_feats: 100
+depth: 3
+dropout: 0.1

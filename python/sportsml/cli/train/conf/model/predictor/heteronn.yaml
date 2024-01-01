@@ -1,0 +1,7 @@
+_target_: sportsml.layers.gnn.predictor.heteronn.HeteroNNPredictor
+in_feats: 100
+hidden_dim: 100
+depth: 1
+out_feats: 1
+dropout: 0.1
+batch_norm: true

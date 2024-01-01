@@ -1,10 +1,40 @@
+from typing import List
+
 import dgl
 import lightning.pytorch as pl
 import numpy as np
+import pandas as pd
 import torch
 
 from .dataset import CFBGraphDataset
 from .features import GRAPH_FEATURES
+from ...utils.datamodule import HeteroGraphDataModule
+
+
+class CFBHeteroGraphDataModule(HeteroGraphDataModule):
+    def __init__(
+        self,
+        games: pd.DataFrame,
+        batch_size: int = 4,
+        split_type: str = "random",
+        splits: List[int] = [0.8, 0.1, 0.1],
+        num_workers: int = 4,
+    ):
+        super().__init__(
+            games=games,
+            feature_columns=GRAPH_FEATURES,
+            target_columns=["result"],
+            win_column="won",
+            home_column="home",
+            season_column="season",
+            date_column="week",
+            team_column="team",
+            num_nodes=320,
+            batch_size=batch_size,
+            split_type=split_type,
+            splits=splits,
+            num_workers=num_workers,
+        )
 
 
 class CFBGraphDataModule(pl.LightningDataModule):
@@ -32,9 +62,7 @@ class CFBGraphDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
 
     def setup(self, stage="train"):
-        self.ds = CFBGraphDataset(
-            self.df, self.feature_columns, self.target_columns
-        )
+        self.ds = CFBGraphDataset(self.df, self.feature_columns, self.target_columns)
         if self.split_type == "random":
             (
                 self.train_ds,
@@ -42,15 +70,9 @@ class CFBGraphDataModule(pl.LightningDataModule):
                 self.test_ds,
             ) = torch.utils.data.random_split(self.ds, self.splits)
         elif self.split_type == "time":
-            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[
-                :2
-            ]
-            train_idx, val_idx, test_idx = np.array_split(
-                np.arange(len(self.ds)), idx
-            )
-            self.train_ds = torch.utils.data.Subset(
-                self.ds, train_idx.tolist()
-            )
+            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[:2]
+            train_idx, val_idx, test_idx = np.array_split(np.arange(len(self.ds)), idx)
+            self.train_ds = torch.utils.data.Subset(self.ds, train_idx.tolist())
             self.val_ds = torch.utils.data.Subset(self.ds, val_idx.tolist())
             self.test_ds = torch.utils.data.Subset(self.ds, test_idx.tolist())
         elif self.split_type is None:

@@ -41,7 +41,7 @@ class GCNEncoder(torch.nn.Module):
             dgl.function.copy_e("f", "m"), dgl.function.reducer.mean("m", "f")
         )
 
-        g.ndata["h"] = g.ndata["f"]
+        g.ndata["h"] = g.ndata["f"].clone()
 
         src, dst = g.edges()
         for layer in self.layers:

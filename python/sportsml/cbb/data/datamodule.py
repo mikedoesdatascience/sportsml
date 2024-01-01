@@ -1,15 +1,43 @@
+from typing import List
+
 import dgl
 import numpy as np
+import pandas as pd
 import torch
 import lightning.pytorch as pl
 
 from .features import GRAPH_FEATURES
+from ...utils.datamodule import HeteroGraphDataModule
+
+
+class CBBHeteroGraphDataModule(HeteroGraphDataModule):
+    def __init__(
+        self,
+        games: pd.DataFrame,
+        batch_size: int = 4,
+        split_type: str = "random",
+        splits: List[int] = [0.8, 0.1, 0.1],
+        num_workers: int = 4,
+    ):
+        super().__init__(
+            games=games,
+            feature_columns=GRAPH_FEATURES,
+            target_columns=["PlusMinus"],
+            win_column="Won",
+            home_column="Loc",
+            season_column="Season",
+            date_column="DayNum",
+            team_column="Team",
+            num_nodes=377,
+            batch_size=batch_size,
+            split_type=split_type,
+            splits=splits,
+            num_workers=num_workers,
+        )
 
 
 class CBBGraphDataset(object):
-    def __init__(
-        self, df, feature_columns=GRAPH_FEATURES, target_column="PlusMinus"
-    ):
+    def __init__(self, df, feature_columns=GRAPH_FEATURES, target_column="PlusMinus"):
         self.df = df
         self.feature_columns = feature_columns
         self.target_column = target_column
@@ -40,14 +68,13 @@ class CBBGraphDataset(object):
     def __getitem__(self, idx):
         season, date = self.dates[idx]
         g = self.graph.edge_subgraph(
-            (self.graph.edata["season"] == season)
-            & (self.graph.edata["date"] <= date),
+            (self.graph.edata["season"] == season) & (self.graph.edata["date"] <= date),
             relabel_nodes=False,
         )
         g.edata["train"] = g.edata["date"] != g.edata["date"].max()
-        g.edata["w"] = (
-            1 / (g.edata["date"].max() + 1 - g.edata["date"])
-        ).reshape(-1, 1)
+        g.edata["w"] = (1 / (g.edata["date"].max() + 1 - g.edata["date"])).reshape(
+            -1, 1
+        )
         return g
 
     def generate_graph(self):
@@ -58,19 +85,11 @@ class CBBGraphDataset(object):
             ),
             num_nodes=self.df["TeamID"].max() + 1,
         )
-        g.edata["f"] = torch.from_numpy(
-            self.df[self.feature_columns].values
-        ).float()
-        g.edata["y"] = torch.from_numpy(
-            self.df[[self.target_column]].values
-        ).float()
+        g.edata["f"] = torch.from_numpy(self.df[self.feature_columns].values).float()
+        g.edata["y"] = torch.from_numpy(self.df[[self.target_column]].values).float()
         g.edata["p"] = torch.from_numpy(self.df[["Loc"]].values).float()
-        g.edata["date"] = torch.from_numpy(
-            self.df["DayNum"].values.astype(int)
-        )
-        g.edata["season"] = torch.from_numpy(
-            self.df["Season"].values.astype(int)
-        )
+        g.edata["date"] = torch.from_numpy(self.df["DayNum"].values.astype(int))
+        g.edata["season"] = torch.from_numpy(self.df["Season"].values.astype(int))
         return g
 
 
@@ -95,9 +114,7 @@ class CBBGraphDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
 
     def setup(self, stage="train"):
-        self.ds = CBBGraphDataset(
-            self.df, self.feature_columns, self.target_column
-        )
+        self.ds = CBBGraphDataset(self.df, self.feature_columns, self.target_column)
         if self.split_type == "random":
             (
                 self.train_ds,
@@ -105,15 +122,9 @@ class CBBGraphDataModule(pl.LightningDataModule):
                 self.test_ds,
             ) = torch.utils.data.random_split(self.ds, self.splits)
         elif self.split_type == "time":
-            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[
-                :2
-            ]
-            train_idx, val_idx, test_idx = np.array_split(
-                np.arange(len(self.ds)), idx
-            )
-            self.train_ds = torch.utils.data.Subset(
-                self.ds, train_idx.tolist()
-            )
+            idx = (len(self.ds) * np.array(self.splits).cumsum()).astype(int)[:2]
+            train_idx, val_idx, test_idx = np.array_split(np.arange(len(self.ds)), idx)
+            self.train_ds = torch.utils.data.Subset(self.ds, train_idx.tolist())
             self.val_ds = torch.utils.data.Subset(self.ds, val_idx.tolist())
             self.test_ds = torch.utils.data.Subset(self.ds, test_idx.tolist())
         else:

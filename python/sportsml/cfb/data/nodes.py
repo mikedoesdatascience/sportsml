@@ -317,6 +317,8 @@ team_abr_map = {
     315: "Webber International",
     316: "Florida Memorial University",
     317: "Southwest Minnesota State",
+    318: "Harding",
+    319: "SUNY Cortland",
 }
 
 team_abr_lookup = {v: k for k, v in team_abr_map.items()}

@@ -54,9 +54,7 @@ def process_games(games: pd.DataFrame):
     games["src"] = games["TEAM_ID_OPP"].map(team_idx_map)
     games["target"] = games["TEAM_ID"].map(team_idx_map)
 
-    games["SEASON"] = (
-        games["SEASON_ID"].astype(str).str.slice(start=1).astype(int)
-    )
+    games["SEASON"] = games["SEASON_ID"].astype(str).str.slice(start=1).astype(int)
 
     return games
 
@@ -96,6 +94,9 @@ def get_games(query={}):
         }
     )
     df = pd.DataFrame(client.nba.games.find(query)).sort_values("GAME_DATE")
+    df["won"] = df["PTS"] > df["PTS_OPP"]
+    df["home"] = df["HOME"].astype(bool)
+    df["y"] = df["PTS"] - df["PTS_OPP"]
     return df
 
 
@@ -115,9 +116,7 @@ def get_latest_graph():
         "SEASON_ID": {"$regex": "^2|^4"},
         "GAME_ID": {"$regex": "^0"},
     }
-    games = get_games(
-        {"SEASON": max(client.nba.games.find(query).distinct("SEASON"))}
-    )
+    games = get_games({"SEASON": max(client.nba.games.find(query).distinct("SEASON"))})
     ds = NBAGraphDataset(games)
     return ds[-1]
 

@@ -13,4 +13,5 @@ hydra:
 model: latest
 sport: ???
 sort: true
+db: false
 out: preds.csv

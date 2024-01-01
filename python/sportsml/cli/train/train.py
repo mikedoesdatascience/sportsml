@@ -13,7 +13,7 @@ def train(cfg: DictConfig) -> None:
 
     trainer.fit(model, dm)
 
-    if len(dm.test_ds):
+    if len(dm.test_idx):
         trainer.test(model, dm, ckpt_path="best")
 
 

@@ -12,18 +12,17 @@ class GraphModel(pl.LightningModule):
         encoder: torch.nn.Module,
         predictor: torch.nn.Module,
         edge_encoder_features: str = "f",
-        edge_predictor_features: str = "p",
         edge_targets: str = "y",
-        train_mask: str = "train",
+        lr: float = 1e-3,
     ):
         super().__init__()
         self.encoder = encoder
         self.predictor = predictor
 
         self.edge_encoder_features = edge_encoder_features
-        self.edge_predictor_features = edge_predictor_features
         self.edge_targets = edge_targets
-        self.train_mask = train_mask
+
+        self.lr = lr
 
         self.rmse = torchmetrics.MeanSquaredError(squared=False)
         self.mae = torchmetrics.MeanAbsoluteError()
@@ -33,27 +32,25 @@ class GraphModel(pl.LightningModule):
         self.precision_score = torchmetrics.classification.MulticlassPrecision(
             num_classes=2
         )
-        self.recall_score = torchmetrics.classification.MulticlassRecall(
-            num_classes=2
-        )
+        self.recall_score = torchmetrics.classification.MulticlassRecall(num_classes=2)
 
-        self.save_hyperparameters(
-            "encoder",
-            "predictor",
-            "edge_encoder_features",
-            "edge_predictor_features",
-            "edge_targets",
+        self.save_hyperparameters(ignore=["encoder", "predictor"])
+        self.hparams.update(
+            {
+                "encoder": encoder.hparams,
+                "predictor": predictor.hparams,
+            }
         )
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         lr_scheduler = torch.optim.lr_scheduler.SequentialLR(
             optimizer,
             [
                 torch.optim.lr_scheduler.LinearLR(
-                    optimizer, start_factor=0.1, end_factor=1, total_iters=2
+                    optimizer, start_factor=0.01, end_factor=1, total_iters=5
                 ),
-                torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.7),
+                torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9),
             ],
             milestones=[2],
         )
@@ -62,60 +59,93 @@ class GraphModel(pl.LightningModule):
             "lr_scheduler": {"scheduler": lr_scheduler},
         }
 
-    def batch_step(self, g):
-        train = g.edge_subgraph(
-            g.edata[self.train_mask], relabel_nodes=False
-        ).local_var()
-        test = g.edge_subgraph(
-            ~g.edata[self.train_mask], relabel_nodes=False
-        ).local_var()
-        h = self.encoder(train, train.edata[self.edge_encoder_features])
-        e = test.edata[self.edge_predictor_features]
-        p = self.predictor(test, h, e)
-        y = test.edata[self.edge_targets]
-        return p, y
+    def batch_step(self, g, p):
+        g = g.local_var()
+        p = p.local_var()
 
-    def training_step(self, g, g_idx):
-        p, y = self.batch_step(g)
+        h = self.encoder(g)
+        p.ndata["h"] = h
+        home_x, away_x = self.predictor(p)
+        home_y = p.edges["home"].data["y"]
+        away_y = p.edges["away"].data["y"]
+        return torch.vstack([home_x, away_x]), torch.vstack([home_y, away_y])
+
+    def training_step(self, graphs, idx):
+        p, y = self.batch_step(*graphs)
         loss = torch.nn.functional.mse_loss(p, y)
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
-    def validation_step(self, g, g_idx):
-        p, y = self.batch_step(g)
-        self.rmse(p, y)
-        self.mae(p, y)
-        self.accuracy_score(p > 0, y > 0)
-        self.precision_score(p > 0, y > 0)
-        self.recall_score(p > 0, y > 0)
-        self.log("val_rmse", self.rmse, prog_bar=True)
-        self.log("val_mae", self.mae)
-        self.log("val_accuracy", self.accuracy_score)
-        self.log("val_precision", self.precision_score)
-        self.log("val_recall", self.recall_score)
+    def validation_step(self, graphs, g_idx):
+        p, y = self.batch_step(*graphs)
+        self.rmse.update(p, y)
+        self.mae.update(p, y)
+        self.accuracy_score.update(p > 0, y > 0)
+        self.precision_score.update(p > 0, y > 0)
+        self.recall_score.update(p > 0, y > 0)
 
-    def test_step(self, g, g_idx):
-        p, y = self.batch_step(g)
-        self.rmse(p, y)
-        self.mae(p, y)
-        self.accuracy_score(p > 0, y > 0)
-        self.precision_score(p > 0, y > 0)
-        self.recall_score(p > 0, y > 0)
-        self.log("test_rmse", self.rmse)
-        self.log("test_mae", self.mae)
-        self.log("test_accuracy", self.accuracy_score)
-        self.log("test_precision", self.precision_score)
-        self.log("test_recall", self.recall_score)
+    def on_validation_epoch_end(self, *args, **kwargs):
+        self.log("val_rmse", self.rmse.compute(), prog_bar=True)
+        self.log("val_mae", self.mae.compute())
+        self.log("val_accuracy", self.accuracy_score.compute())
+        self.log("val_precision", self.precision_score.compute())
+        self.log("val_recall", self.recall_score.compute())
+        self.rmse.reset()
+        self.mae.reset()
+        self.accuracy_score.reset()
+        self.precision_score.reset()
+        self.recall_score.reset()
+
+    def test_step(self, graphs, g_idx):
+        p, y = self.batch_step(*graphs)
+        self.rmse.update(p, y)
+        self.mae.update(p, y)
+        self.accuracy_score.update(p > 0, y > 0)
+        self.precision_score.update(p > 0, y > 0)
+        self.recall_score.update(p > 0, y > 0)
+
+    def on_test_epoch_end(self, *args, **kwargs):
+        self.log("test_rmse", self.rmse.compute())
+        self.log("test_mae", self.mae.compute())
+        self.log("test_accuracy", self.accuracy_score.compute())
+        self.log("test_precision", self.precision_score.compute())
+        self.log("test_recall", self.recall_score.compute())
+        self.rmse.reset()
+        self.mae.reset()
+        self.accuracy_score.reset()
+        self.precision_score.reset()
+        self.recall_score.reset()
 
     def predict(self, graph):
-        h = self.encoder(graph, graph.edata[self.edge_encoder_features])
-        pred_graph = dgl.graph(
-            list(itertools.permutations(range(graph.number_of_nodes()), 2))
+        h = self.encoder(graph)
+        p = dgl.heterograph(
+            {
+                ("team", "home", "team"): list(
+                    itertools.permutations(range(graph.number_of_nodes()), 2)
+                ),
+                ("team", "away", "team"): list(
+                    itertools.permutations(range(graph.number_of_nodes()), 2)
+                ),
+            },
+            {"team": graph.number_of_nodes()},
         )
-        pred_graph.edata["home_pred"] = self.predictor(
-            pred_graph, h, torch.ones((pred_graph.number_of_edges()), 1)
-        )
-        pred_graph.edata["away_pred"] = self.predictor(
-            pred_graph, h, torch.zeros((pred_graph.number_of_edges()), 1)
-        )
-        return pred_graph
+        p.ndata["h"] = h
+        home_p, away_p = self.predictor(p)
+        p.edges["home"].data["pred"] = home_p
+        p.edges["away"].data["pred"] = away_p
+        return p
+
+    @classmethod
+    def load_from_checkpoint(
+        cls,
+        checkpoint_path: str,
+        **kwargs,
+    ):
+        hparams = torch.load(checkpoint_path)["hyper_parameters"]
+
+        kwargs |= {
+            key: hparams[key].pop("cls")(**hparams[key])
+            for key in ("encoder", "predictor")
+        }
+
+        return super().load_from_checkpoint(checkpoint_path, **kwargs)
