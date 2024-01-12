@@ -6,5 +6,6 @@ tasks:
       alias ltr='ls -lhtr'
       echo "alias ltr='ls -lhtr'" >> ~/.bashrc
       python -m pip install -U pip
+      python -m pip install -r ./python/requirements.cpu.lock
       python -m pip install bump2version black build twine
       python -m pip install -e ./python
