@@ -30,6 +30,9 @@ class HeteroGraphDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
 
+        self.num_feats = len(feature_columns)
+        self.num_targets = len(target_columns)
+
         self.ds = HeteroGraphDataset(
             games=games,
             feature_columns=feature_columns,
