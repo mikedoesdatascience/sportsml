@@ -13,5 +13,5 @@ class CBBHeteroGraphDataset(HeteroGraphDataset):
             season_column="Season",
             date_column="DayNum",
             team_column="Team",
-            num_nodes=377,
+            num_nodes=378,
         )
