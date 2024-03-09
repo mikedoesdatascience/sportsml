@@ -28,7 +28,7 @@ class CBBHeteroGraphDataModule(HeteroGraphDataModule):
             season_column="Season",
             date_column="DayNum",
             team_column="Team",
-            num_nodes=377,
+            num_nodes=378,
             batch_size=batch_size,
             split_type=split_type,
             splits=splits,
