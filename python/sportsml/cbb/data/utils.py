@@ -10,9 +10,7 @@ def get_team_name_map():
 
 
 def get_games(query={}):
-    df = pd.DataFrame(client.cbb.games.find(query)).sort_values(
-        ["Season", "DayNum"]
-    )
+    df = pd.DataFrame(client.cbb.games.find(query)).sort_values(["Season", "DayNum"])
     return df
 
 
