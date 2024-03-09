@@ -376,6 +376,7 @@ team_name_map = {
     374: "Southern Indiana",
     375: "Stonehill",
     376: "TX A&M Commerce",
+    377: "Le Moyne",
 }
 
 team_name_lookup = {v: k for k, v in team_name_map.items()}
