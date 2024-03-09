@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .datamodule import CBBGraphDataset
+from .dataset import CBBHeteroGraphDataset
 from .nodes import team_name_map
 from ...mongo import client
 
@@ -16,5 +16,5 @@ def get_games(query={}):
 
 def get_latest_graph():
     games = get_games({"Season": max(client.cbb.games.distinct("Season"))})
-    ds = CBBGraphDataset(games)
+    ds = CBBHeteroGraphDataset(games)
     return ds[-1]
