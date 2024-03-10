@@ -142,5 +142,6 @@ notebooks/models
 
 /data
 
-outputs
+/outputs
+/multirun
 mlruns
