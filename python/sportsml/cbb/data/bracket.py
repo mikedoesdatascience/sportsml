@@ -12,6 +12,8 @@ class Bracket(nx.DiGraph):
         for idx, row in seeds.iterrows():
             self.nodes[row.Seed]["team_id"] = row.TeamID
 
+        self.team_seed_map = seeds.set_index('TeamID')['Seed']
+
         self.championship = [node for node, degree in self.out_degree() if degree == 0]
         if len(self.championship) != 1:
             raise ValueError(
@@ -40,6 +42,7 @@ class Bracket(nx.DiGraph):
             team_ids = [self.nodes[pred]["team_id"] for pred in predecessors]
             winner = predictor(*team_ids)
             self.nodes[game]["team_id"] = winner
+            self.nodes[game]["seed"] = self.team_seed_map[winner]
         return self.nodes[self.championship]
 
     def simulate_random(self):
