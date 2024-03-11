@@ -15,10 +15,19 @@ def format_games(games):
     )
 
     games = games.rename(columns=col_renamer)
-    games["Loc"] = games["Loc"].map({"H": 1, "A": 0, "N": 0})
+    games["Loc"] = games["Loc"].map({"H": 1, "A": -1, "N": 0})
 
-    opp_games = games.copy()[["Season", "DayNum", "NumOT"]]
-    opp_games["Loc"] = (games["Loc"] - 1).abs()
+    games["TeamID"] = games["TeamID"] - 1101
+    games["TeamID_OPP"] = games["TeamID_OPP"] - 1101
+
+    games["GameID"] = (
+        games[["Season", "DayNum", "TeamID", "TeamID_OPP"]]
+        .astype(str)
+        .agg(".".join, axis=1)
+    )
+
+    opp_games = games.copy()[["Season", "DayNum", "NumOT", "GameID"]]
+    opp_games["Loc"] = -1 * games["Loc"]
     opp_games[["TeamID", "TeamID_OPP"]] = games[["TeamID_OPP", "TeamID"]].values
     opp_games[STATS_COLUMNS] = games[OPP_STATS_COLUMNS].values
     opp_games[OPP_STATS_COLUMNS] = games[STATS_COLUMNS].values
@@ -27,9 +36,6 @@ def format_games(games):
 
     games["PlusMinus"] = games["Score"] - games["Score_OPP"]
     games["Won"] = games["PlusMinus"] > 0
-
-    games["TeamID"] = games["TeamID"] - 1101
-    games["TeamID_OPP"] = games["TeamID_OPP"] - 1101
 
     games["target"] = games["TeamID"]
     games["src"] = games["TeamID_OPP"]
@@ -51,3 +57,8 @@ def mongo_upload(games):
     ]
     _ = client.cbb.games.bulk_write(updates)
     return
+
+
+if __name__ == "__main__":
+    mongo_upload(format_games(pd.read_csv("data/MNCAATourneyDetailedResults.csv")))
+    mongo_upload(format_games(pd.read_csv("data/MRegularSeasonDetailedResults.csv")))
