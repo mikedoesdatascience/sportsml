@@ -22,11 +22,12 @@ def train_rf(
     games: pd.DataFrame,
     test_size: float,
     stats_columns: List[str],
+    game_id_column: str,
     target_column: str,
     season_column: str,
     date_column: str,
     team_column: str,
-    opp_column: str,
+    home_column: str,
     rolling_windows: List[int],
     random_state: int = 42,
     rf_kwargs: Dict[str, Any] = {},
@@ -34,16 +35,14 @@ def train_rf(
     avgs = process_averages(
         games,
         stats_columns=stats_columns,
+        game_id_column=game_id_column,
         season_column=season_column,
         date_column=date_column,
         team_column=team_column,
-        opp_column=opp_column,
         rolling_windows=rolling_windows,
     )
     meta_columns = games.drop(stats_columns, axis=1).columns
-    f_columns = avgs.drop(meta_columns, axis=1).columns
-    avgs = avgs.dropna(subset=f_columns)
-    f_columns = avgs.drop(meta_columns, axis=1).columns
+    f_columns = avgs.drop(meta_columns, axis=1).columns.tolist() + [home_column]
 
     if test_size > 0:
         train, test = sklearn.model_selection.train_test_split(
@@ -53,12 +52,12 @@ def train_rf(
         train = avgs
         test = None
 
-    train_X = train[f_columns].values
-    train_y = train[target_column].values
+    train_X = train[f_columns]
+    train_y = train[target_column]
 
     if test is not None:
-        test_X = test[f_columns].values
-        test_y = test[target_column].values
+        test_X = test[f_columns]
+        test_y = test[target_column]
 
     rf = sklearn.ensemble.RandomForestRegressor(**rf_kwargs)
     rf.fit(train_X, train_y)
