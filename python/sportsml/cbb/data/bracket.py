@@ -1,5 +1,6 @@
 import random
 import networkx as nx
+import numpy as np
 
 
 class Bracket(nx.DiGraph):
@@ -12,7 +13,7 @@ class Bracket(nx.DiGraph):
         for idx, row in seeds.iterrows():
             self.nodes[row.Seed]["team_id"] = row.TeamID
 
-        self.team_seed_map = seeds.set_index('TeamID')['Seed']
+        self.team_seed_map = seeds.set_index("TeamID")["Seed"]
 
         self.championship = [node for node, degree in self.out_degree() if degree == 0]
         if len(self.championship) != 1:
@@ -34,7 +35,10 @@ class Bracket(nx.DiGraph):
     def reset(self):
         for node, degree in self.degree():
             if degree > 1:
-                del self.nodes[node]["team_id"]
+                if self.nodes[node].get("team_id"):
+                    del self.nodes[node]["team_id"]
+                if self.nodes[node].get("seed"):
+                    del self.nodes[node]["seed"]
 
     def simulate(self, predictor):
         for game in self.games:
@@ -47,3 +51,12 @@ class Bracket(nx.DiGraph):
 
     def simulate_random(self):
         return self.simulate(lambda x, y: random.choice([x, y]))
+
+
+class ProbabilityPredictor:
+    def __init__(self, probabilities: pd.DataFrame):
+        self.probabilities = probabilities
+
+    def __call__(self, team_x, team_y):
+        prob = self.probabilities.loc[team_x, team_y]
+        return team_x if np.random.random() < prob else team_y
