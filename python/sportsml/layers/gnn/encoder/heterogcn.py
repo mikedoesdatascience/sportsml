@@ -55,7 +55,7 @@ class HeteroGCNEncoder(torch.nn.Module, HyperparametersMixin):
     def edge_to_node(self, g):
         g.multi_update_all(
             {
-                "won": (
+                "win": (
                     dgl.function.copy_e("h", "m"),
                     dgl.function.reducer.mean("m", "h"),
                 ),
@@ -70,7 +70,7 @@ class HeteroGCNEncoder(torch.nn.Module, HyperparametersMixin):
     def forward(self, g):
         g = g.local_var()
 
-        g.edges["won"].data["h"] = self.w_init(g.edges["won"].data["f"])
+        g.edges["win"].data["h"] = self.w_init(g.edges["win"].data["f"])
         g.edges["lost"].data["h"] = self.l_init(g.edges["lost"].data["f"])
 
         self.edge_to_node(g)
@@ -82,8 +82,8 @@ class HeteroGCNEncoder(torch.nn.Module, HyperparametersMixin):
             g.ndata["hv"] = self.dst_layer(g.ndata["h"])
             g.apply_edges(dgl.function.u_add_v("hu", "hv", "h"))
 
-            g.edges["won"].data["h"] = self.w_layer(g.edges["won"].data["h"])
-            g.edges["lost"].data["h"] = self.w_layer(g.edges["lost"].data["h"])
+            g.edges["win"].data["h"] = self.w_layer(g.edges["win"].data["h"])
+            g.edges["lost"].data["h"] = self.l_layer(g.edges["lost"].data["h"])
 
             self.edge_to_node(g)
 
