@@ -26,13 +26,7 @@ class GraphModel(pl.LightningModule):
 
         self.rmse = torchmetrics.MeanSquaredError(squared=False)
         self.mae = torchmetrics.MeanAbsoluteError()
-        self.accuracy_score = torchmetrics.classification.MulticlassAccuracy(
-            num_classes=2
-        )
-        self.precision_score = torchmetrics.classification.MulticlassPrecision(
-            num_classes=2
-        )
-        self.recall_score = torchmetrics.classification.MulticlassRecall(num_classes=2)
+        self.accuracy_score = torchmetrics.classification.BinaryAccuracy()
 
         self.save_hyperparameters(ignore=["encoder", "predictor"])
         self.hparams.update(
@@ -81,40 +75,28 @@ class GraphModel(pl.LightningModule):
         self.rmse.update(p, y)
         self.mae.update(p, y)
         self.accuracy_score.update(p > 0, y > 0)
-        self.precision_score.update(p > 0, y > 0)
-        self.recall_score.update(p > 0, y > 0)
 
     def on_validation_epoch_end(self, *args, **kwargs):
         self.log("val_rmse", self.rmse.compute(), prog_bar=True)
         self.log("val_mae", self.mae.compute())
-        self.log("val_accuracy", self.accuracy_score.compute())
-        self.log("val_precision", self.precision_score.compute())
-        self.log("val_recall", self.recall_score.compute())
+        self.log("val_accuracy", self.accuracy_score.compute(), prog_bar=True)
         self.rmse.reset()
         self.mae.reset()
         self.accuracy_score.reset()
-        self.precision_score.reset()
-        self.recall_score.reset()
 
     def test_step(self, graphs, g_idx):
         p, y = self.batch_step(*graphs)
         self.rmse.update(p, y)
         self.mae.update(p, y)
         self.accuracy_score.update(p > 0, y > 0)
-        self.precision_score.update(p > 0, y > 0)
-        self.recall_score.update(p > 0, y > 0)
 
     def on_test_epoch_end(self, *args, **kwargs):
         self.log("test_rmse", self.rmse.compute())
         self.log("test_mae", self.mae.compute())
         self.log("test_accuracy", self.accuracy_score.compute())
-        self.log("test_precision", self.precision_score.compute())
-        self.log("test_recall", self.recall_score.compute())
         self.rmse.reset()
         self.mae.reset()
         self.accuracy_score.reset()
-        self.precision_score.reset()
-        self.recall_score.reset()
 
     def predict(self, graph):
         h = self.encoder(graph)
