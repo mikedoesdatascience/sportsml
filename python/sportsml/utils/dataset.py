@@ -14,7 +14,7 @@ class HeteroGraphDataset:
         feature_columns: List[str],
         target_columns: List[str],
         win_column: str,
-        home_column: str,
+        loc_column: str,
         season_column: str,
         date_column: str,
         team_column: str,
@@ -24,7 +24,7 @@ class HeteroGraphDataset:
         self.feature_columns = feature_columns
         self.target_columns = target_columns
         self.win_column = win_column
-        self.home_column = home_column
+        self.home_column = loc_column
         self.season_column = season_column
         self.date_column = date_column
         self.team_column = team_column
@@ -37,10 +37,7 @@ class HeteroGraphDataset:
             [self.season_column, self.team_column]
         ).cumcount()
         min_gp = (
-            self.games.groupby([self.season_column, self.date_column])[
-                "gp"
-            ].min()
-            > 0
+            self.games.groupby([self.season_column, self.date_column])["gp"].min() > 0
         )
         return min_gp[min_gp].index.tolist()
 
@@ -56,7 +53,7 @@ class HeteroGraphDataset:
         ]
         encoder_graph = heterograph_encoder(
             games["src"].values,
-            games["target"].values,
+            games["dst"].values,
             feat=games[self.feature_columns].values,
             won_mask=games[self.win_column].values,
             num_nodes=self.num_nodes,
@@ -68,9 +65,9 @@ class HeteroGraphDataset:
         ]
         predictor_graph = heterograph_predictor(
             pgames["src"].values,
-            pgames["target"].values,
+            pgames["dst"].values,
             feat=pgames[self.feature_columns].values,
-            home_mask=pgames[self.home_column].values,
+            home_mask=pgames[self.loc_column].values,
             y=pgames[self.target_columns].values,
             num_nodes=self.num_nodes,
         )
