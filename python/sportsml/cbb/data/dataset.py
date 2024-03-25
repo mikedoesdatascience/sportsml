@@ -9,7 +9,7 @@ class CBBHeteroGraphDataset(HeteroGraphDataset):
             feature_columns=STATS_COLUMNS,
             target_columns=["PlusMinus"],
             win_column="Win",
-            home_column="Loc",
+            loc_column="Loc",
             season_column="Season",
             date_column="DayNum",
             team_column="TeamID",

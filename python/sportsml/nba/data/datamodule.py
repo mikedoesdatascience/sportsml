@@ -24,7 +24,7 @@ class NBAHeteroGraphDataModule(HeteroGraphDataModule):
             feature_columns=GRAPH_FEATURES,
             target_columns=["y"],
             win_column="won",
-            home_column="home",
+            loc_column="home",
             season_column="SEASON",
             date_column="GAME_DATE",
             team_column="TEAM_ABBREVIATION",

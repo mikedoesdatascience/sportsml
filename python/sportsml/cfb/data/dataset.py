@@ -13,7 +13,7 @@ class CFBHeteroGraphDataset(HeteroGraphDataset):
             feature_columns=GRAPH_FEATURES,
             target_columns=["result"],
             win_column="won",
-            home_column="home",
+            loc_column="home",
             season_column="season",
             date_column="week",
             team_column="team",
