@@ -38,7 +38,7 @@ def mongo_upload():
     schedule = get_schedule()
     games = merge_games_schedule(games, schedule)
     games["src"] = games["opp_team"].map(team_abr_lookup)
-    games["target"] = games["team"].map(team_abr_lookup)
+    games["dst"] = games["team"].map(team_abr_lookup)
     updates = [
         ReplaceOne({"_id": game["_id"]}, game, upsert=True)
         for game in games.to_dict(orient="records")

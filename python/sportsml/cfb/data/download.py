@@ -36,9 +36,7 @@ def download_games(year: int, week: int, season_type="regular"):
     games["season"] = year
     games["week"] = week
     games["_id"] = (
-        games[["season", "week", "team", "opp_team"]]
-        .astype(str)
-        .agg("-".join, axis=1)
+        games[["season", "week", "team", "opp_team"]].astype(str).agg("-".join, axis=1)
     )
     return games.reset_index(drop=True).fillna(0.0)
 
@@ -57,32 +55,28 @@ def game_to_dataframe(game):
             df["possessionTime"] = df["possessionTime"].apply(possession_time)
 
         if "totalPenaltiesYards" in df:
-            df["totalPenaltiesYards"] = df["totalPenaltiesYards"].str.replace(
-                "--", "-"
-            )
+            df["totalPenaltiesYards"] = df["totalPenaltiesYards"].str.replace("--", "-")
             df[["totalPenalties", "totalPenaltiesYards"]] = df.pop(
                 "totalPenaltiesYards"
             ).str.split("-", expand=True)
 
         if "completionAttempts" in df:
-            df["completionAttempts"] = df["completionAttempts"].str.replace(
-                "--", "-"
-            )
+            df["completionAttempts"] = df["completionAttempts"].str.replace("--", "-")
             df[["passingCompletions", "passingAttempts"]] = df.pop(
                 "completionAttempts"
             ).str.split("-", expand=True)
 
         if "fourthDownEff" in df:
             df["fourthDownEff"] = df["fourthDownEff"].str.replace("--", "-")
-            df[["fourthDownAtt", "fourthDownConv"]] = df.pop(
-                "fourthDownEff"
-            ).str.split("-", expand=True)
+            df[["fourthDownAtt", "fourthDownConv"]] = df.pop("fourthDownEff").str.split(
+                "-", expand=True
+            )
 
         if "thirdDownEff" in df:
             df["thirdDownEff"] = df["thirdDownEff"].str.replace("--", "-")
-            df[["thirdDownAtt", "thirdDownConv"]] = df.pop(
-                "thirdDownEff"
-            ).str.split("-", expand=True)
+            df[["thirdDownAtt", "thirdDownConv"]] = df.pop("thirdDownEff").str.split(
+                "-", expand=True
+            )
 
         df = df.astype(float)
         df["team"] = team["school"]
@@ -111,14 +105,12 @@ def mongo_upload():
             if datetime.datetime.today().isoformat() < week["firstGameStart"]:
                 continue
             try:
-                games.append(
-                    download_games(year, week["week"], week["seasonType"])
-                )
+                games.append(download_games(year, week["week"], week["seasonType"]))
             except:
                 print(week)
     games = pd.concat(games).reset_index(drop=True)
     games["src"] = games["opp_team"].map(team_abr_lookup)
-    games["target"] = games["team"].map(team_abr_lookup)
+    games["dst"] = games["team"].map(team_abr_lookup)
     updates = [
         ReplaceOne({"_id": game["_id"]}, game, upsert=True)
         for game in games.to_dict(orient="records")

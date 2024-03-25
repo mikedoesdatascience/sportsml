@@ -7,9 +7,9 @@ from omegaconf import DictConfig
 def train(cfg: DictConfig) -> None:
     if cfg.seed is not None:
         pl.seed_everything(cfg.seed)
+    dm = hydra.utils.instantiate(cfg.dm)
     trainer = hydra.utils.instantiate(cfg.trainer)
     model = hydra.utils.instantiate(cfg.model)
-    dm = hydra.utils.instantiate(cfg.dm)
 
     trainer.fit(model, dm)
 

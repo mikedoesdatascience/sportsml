@@ -10,6 +10,9 @@ from .dataset import HeteroGraphDataset
 
 
 class HeteroGraphDataModule(pl.LightningDataModule):
+    num_feats: int = None
+    num_target: int = None
+
     def __init__(
         self,
         games: pd.DataFrame,

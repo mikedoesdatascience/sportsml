@@ -11,6 +11,9 @@ from ...utils.datamodule import HeteroGraphDataModule
 
 
 class CBBHeteroGraphDataModule(HeteroGraphDataModule):
+    num_feats: int = len(STATS_COLUMNS)
+    num_targets: int = 1
+
     def __init__(
         self,
         games: pd.DataFrame,

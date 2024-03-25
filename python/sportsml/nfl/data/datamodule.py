@@ -12,6 +12,9 @@ from ...utils.datamodule import HeteroGraphDataModule
 
 
 class NFLHeteroGraphDataModule(HeteroGraphDataModule):
+    num_feats: int = len(GRAPH_FEATURES)
+    num_targets: int = 1
+
     def __init__(
         self,
         games: pd.DataFrame,
