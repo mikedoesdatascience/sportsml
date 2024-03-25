@@ -25,16 +25,13 @@ def format_games(games, team_id_offset=1101):
     games["TeamID"] = games["TeamID"]
     games["TeamID_OPP"] = games["TeamID_OPP"]
 
-    opp_games = games.copy()[["Season", "DayNum", "NumOT", "GameID"]]
+    opp_games = games.copy()[["Season", "DayNum", "NumOT"]]
     opp_games["Loc"] = -1 * games["Loc"]
     opp_games[["TeamID", "TeamID_OPP"]] = games[["TeamID_OPP", "TeamID"]].values
     opp_games[TEAM_STATS_COLUMNS] = games[OPP_TEAM_STATS_COLUMNS].values
     opp_games[OPP_TEAM_STATS_COLUMNS] = games[TEAM_STATS_COLUMNS].values
 
     games = pd.concat([games, opp_games], ignore_index=True)
-
-    games["PlusMinus"] = games["Score"] - games["Score_OPP"]
-    games["Won"] = games["PlusMinus"] > 0
 
     games["dst"] = games["TeamID"] - team_id_offset
     games["src"] = games["TeamID_OPP"] - team_id_offset

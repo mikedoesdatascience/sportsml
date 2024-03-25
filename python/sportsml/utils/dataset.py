@@ -24,7 +24,7 @@ class HeteroGraphDataset:
         self.feature_columns = feature_columns
         self.target_columns = target_columns
         self.win_column = win_column
-        self.home_column = loc_column
+        self.loc_column = loc_column
         self.season_column = season_column
         self.date_column = date_column
         self.team_column = team_column
@@ -55,7 +55,7 @@ class HeteroGraphDataset:
             games["src"].values,
             games["dst"].values,
             feat=games[self.feature_columns].values,
-            won_mask=games[self.win_column].values,
+            win_mask=games[self.win_column].values,
             num_nodes=self.num_nodes,
         )
 
@@ -67,7 +67,7 @@ class HeteroGraphDataset:
             pgames["src"].values,
             pgames["dst"].values,
             feat=pgames[self.feature_columns].values,
-            home_mask=pgames[self.loc_column].values,
+            loc=pgames[self.loc_column].values,
             y=pgames[self.target_columns].values,
             num_nodes=self.num_nodes,
         )
