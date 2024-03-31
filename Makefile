@@ -1,4 +1,4 @@
-VERSION ?= $(shell bump-my-version show-bump 1> /dev/stdout 2> /dev/null | head -1 | cut -d" " -f1)
+VERSION ?= $(shell python -m hatch version)
 REGISTRY ?= registry.gitlab.com/mikedoesdatascience/sportsml
 
 PLATFORM ?= cpu
@@ -6,17 +6,15 @@ PLATFORM ?= cpu
 default: build
 
 get-version:
-	@bump-my-version show-bump 1> /dev/stdout 2> /dev/null | head -1 | cut -d" " -f1
+	@python -m hatch version
 
 pip-lock:
-	@docker build \
-		--build-arg PLATFORM=$(PLATFORM) \
-		-t $(REGISTRY):lock-$(PLATFORM) \
-		-f docker/Dockerfile.lock \
-		.
 	@docker run -it --rm \
-		$(REGISTRY):lock-$(PLATFORM) \
-			> python/requirements.$(PLATFORM).lock
+		-e PLATFORM=$(PLATFORM) \
+		-v $(shell pwd):$(shell pwd) \
+		-w $(shell pwd) \
+		python:3.11-slim \
+			bash scripts/pip-compile
 	
 
 build:
@@ -26,16 +24,10 @@ build:
 		-f docker/Dockerfile \
 		.
 
-build-base:
-	@docker build \
-		--build-arg=PLATFORM=$(PLATFORM) \
-		-t $(REGISTRY):$(VERSION)-$(PLATFORM)-base \
-		-f docker/Dockerfile.base \
-		.
-
 build-prod:
 	@docker build \
 		--build-arg=PLATFORM=$(PLATFORM) \
+		--build-arg=VERSION=$(VERSION) \
 		-t $(REGISTRY):$(VERSION)-$(PLATFORM) \
 		-f docker/Dockerfile.prod \
 		.

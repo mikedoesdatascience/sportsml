@@ -1,0 +1,4 @@
+#!/bin/bash
+
+python -m pip install uv
+python -m uv pip compile --extra-index-url https://download.pytorch.org/whl/${PLATFORM} pyproject.toml -o requirements.${PLATFORM}.lock
