@@ -3,11 +3,11 @@ FROM python:3.11-slim
 ARG PLATFORM cpu
 
 RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=python/requirements.${PLATFORM}.lock,target=requirements.${PLATFORM}.lock \
-    python -m pip install -U pip && \
-    python -m pip install -U \
+    python -m pip install -U uv && \
+    python -m uv pip install -U --system \
         --extra-index-url https://download.pytorch.org/whl/${PLATFORM} \
-        -f https://data.dgl.ai/wheels/${PLATFORM}/repo.html \
         -r requirements.${PLATFORM}.lock
 
 COPY python /src/sportsml

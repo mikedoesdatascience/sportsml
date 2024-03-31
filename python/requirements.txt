@@ -10,9 +10,10 @@ numpy
 mlflow
 pandas
 pyarrow
+pydantic
 pymongo[srv]
 requests
 scikit-learn
 seaborn
-torch
+torch<=2.1
 torchmetrics
