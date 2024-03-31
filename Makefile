@@ -1,9 +1,12 @@
+VERSION ?= $(shell bump-my-version show-bump 1> /dev/stdout 2> /dev/null | head -1 | cut -d" " -f1)
 REGISTRY ?= registry.gitlab.com/mikedoesdatascience/sportsml
-VERSION ?= $(shell cd python && python3 setup.py --version)
 
 PLATFORM ?= cpu
 
 default: build
+
+get-version:
+	@bump-my-version show-bump 1> /dev/stdout 2> /dev/null | head -1 | cut -d" " -f1
 
 pip-lock:
 	@docker build \
