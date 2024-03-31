@@ -8,4 +8,4 @@ tasks:
       python -m pip install -U uv
       python -m uv pip install --system --extra-index-url https://download.pytorch.org/whl/cpu -r ./python/requirements.cpu.lock
       python -m uv pip install --system hatch ruff
-      python -m uv pip install --system --no-deps -e ./python
+      python -m uv pip install --system --no-deps -e .
