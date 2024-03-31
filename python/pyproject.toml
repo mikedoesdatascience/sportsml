@@ -1,18 +1,38 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling >= 1.13.0"]
+build-backend = "hatchling.build"
 
 [project]
 name = "sportsml"
-version = "0.2.2-dev0"
 description = "ML for sports"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT license"}
-dynamic = ["dependencies"]
+dynamic = ["version"]
+dependencies = [
+    "captum",
+    "dgl",
+    "google-cloud-storage",
+    "hydra-core",
+    "httpx",
+    "lightning",
+    "nba_api",
+    "networkx",
+    "numpy",
+    "mlflow",
+    "pandas",
+    "pyarrow",
+    "pydantic",
+    "pymongo[srv]",
+    "requests",
+    "scikit-learn",
+    "seaborn",
+    "torch<=2.1",
+    "torchmetrics",
+]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[tool.hatch.version]
+path = "sportsml/__init__.py"
 
 [project.scripts]
 cfb_mongo_upload = "sportsml.cfb.data.download:mongo_upload"
