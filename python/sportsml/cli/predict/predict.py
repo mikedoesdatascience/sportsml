@@ -23,7 +23,6 @@ def predict(cfg: DictConfig) -> None:
     _ = [model.eval() for model in models]
     preds = [predict_with_model(model, graph, team_map, sort=False) for model in models]
     avg_preds = np.stack([p.values for p in preds]).mean(axis=0)
-    std_preds = np.stack([p.values for p in preds]).std(axis=0)
     df = preds[0].copy()
     df[:] = avg_preds
     if cfg.sort:

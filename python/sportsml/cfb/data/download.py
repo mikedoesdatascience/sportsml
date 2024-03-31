@@ -106,7 +106,7 @@ def mongo_upload():
                 continue
             try:
                 games.append(download_games(year, week["week"], week["seasonType"]))
-            except:
+            except Exception:
                 print(week)
     games = pd.concat(games).reset_index(drop=True)
     games["src"] = games["opp_team"].map(team_abr_lookup)
