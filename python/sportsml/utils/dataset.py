@@ -1,8 +1,6 @@
 from typing import List
 
-import dgl
 import pandas as pd
-import torch
 
 from .heterograph import heterograph_encoder, heterograph_predictor
 

@@ -1,10 +1,6 @@
 from typing import List
 
-import dgl
-import numpy as np
 import pandas as pd
-import torch
-import lightning.pytorch as pl
 
 from .features import STATS_COLUMNS
 from ...utils.datamodule import HeteroGraphDataModule

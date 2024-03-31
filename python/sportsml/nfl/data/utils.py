@@ -2,7 +2,6 @@ import pandas as pd
 
 from ...mongo import client, group_aggregation
 from ...utils.heterograph import heterograph_encoder
-from .dataset import NFLGraphDataset, NFLHeteroGraphDataset
 from .features import OPP_STATS_COLUMNS, STATS_COLUMNS, GRAPH_FEATURES
 from .names import move_map
 from .nodes import team_abr_map

@@ -1,4 +1,3 @@
-from typing import List
 
 import dgl
 import torch
