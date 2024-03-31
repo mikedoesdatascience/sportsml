@@ -12,6 +12,10 @@ pypi-publish:
     - python -m pip install hatch
     - python -m hatch build
     - python -m hatch publish -u __token__ -a $PYPI_TOKEN dist/*
+    - echo "VERSION=$(python -m hatch version)" >> version.env
+  artifacts:
+    reports:
+      dotenv: version.env
 
 docker-build-push:
   stage: build
@@ -22,9 +26,8 @@ docker-build-push:
     - tags
   needs: ["pypi-publish"]
   before_script:
-    - apk add make python3 py-pip
     - docker info
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - make build-prod
-    - make push
+    - make build-prod VERSION=$VERSION
+    - make push VERSION=$VERSION
