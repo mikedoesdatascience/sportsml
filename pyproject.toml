@@ -7,7 +7,7 @@ name = "sportsml"
 description = "ML for sports"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT license"}
+license-files = { paths = ["LICENSE"] }
 dynamic = ["version"]
 dependencies = [
     "captum",
@@ -31,8 +31,20 @@ dependencies = [
     "torchmetrics",
 ]
 
+[tool.hatch.build.targets.wheel]
+include = [
+  "*.yaml",
+]
+packages = ["src/sportsml"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "*.yaml",
+]
+packages = ["src/sportsml"]
+
 [tool.hatch.version]
-path = "sportsml/__init__.py"
+path = "src/sportsml/__init__.py"
 
 [project.scripts]
 cfb_mongo_upload = "sportsml.cfb.data.download:mongo_upload"

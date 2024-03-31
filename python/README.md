@@ -1,3 +1,0 @@
-# SportsML
-
-ML for sports
