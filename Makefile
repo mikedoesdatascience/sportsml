@@ -5,9 +5,6 @@ PLATFORM ?= cpu
 
 default: build
 
-get-version:
-	@python -m hatch version
-
 pip-lock:
 	@docker run -it --rm \
 		-e PLATFORM=$(PLATFORM) \
