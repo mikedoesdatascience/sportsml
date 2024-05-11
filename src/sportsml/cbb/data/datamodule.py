@@ -3,6 +3,7 @@ from typing import List
 import pandas as pd
 
 from .features import STATS_COLUMNS
+from .utils import get_games
 from ...utils.datamodule import HeteroGraphDataModule
 
 
@@ -12,12 +13,14 @@ class CBBHeteroGraphDataModule(HeteroGraphDataModule):
 
     def __init__(
         self,
-        games: pd.DataFrame,
+        games: pd.DataFrame = None,
         batch_size: int = 4,
         split_type: str = "random",
         splits: List[int] = [0.8, 0.1, 0.1],
         num_workers: int = 4,
     ):
+        if games is None:
+            games = get_games()
         super().__init__(
             games=games,
             feature_columns=STATS_COLUMNS,
