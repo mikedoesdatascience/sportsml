@@ -1,5 +1,5 @@
 _target_: sportsml.layers.gnn.predictor.heteronn.HeteroNNPredictor
-in_feats: 100
+in_feats: ${model.encoder.out_feats}
 hidden_dim: 100
 depth: 1
 out_feats: 1
