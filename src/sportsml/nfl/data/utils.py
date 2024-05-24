@@ -160,9 +160,9 @@ def get_latest_graph():
     games = get_games({"season": max(client.nfl.games.distinct("season"))})
     graph = heterograph_encoder(
         games["src"].values,
-        games["target"].values,
+        games["dst"].values,
         feat=games[GRAPH_FEATURES].values,
-        won_mask=games["won"].values,
+        win_mask=games["won"].values,
         num_nodes=32,
     )
     return graph
