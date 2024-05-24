@@ -1,0 +1,8 @@
+_target_: sportsml.layers.gnn.encoder.heteronn.HeteroNNEncoder
+in_feats: 
+  _target_: hydra.utils.get_object
+  path: ${dm._target_}.num_feats
+out_feats: 100
+init: true
+readout: true
+dropout: 0.1
