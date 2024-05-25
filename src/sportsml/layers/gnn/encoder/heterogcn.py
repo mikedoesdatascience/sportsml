@@ -78,6 +78,8 @@ class HeteroGCNEncoder(torch.nn.Module, HyperparametersMixin):
         g.ndata["f"] = g.ndata["h"].clone()
 
         for _ in range(self.depth):
+            # https://docs.dgl.ai/en/latest/guide/message-efficient.html
+            # mathematically equivalent to concat(src|dst) @ linear
             g.ndata["hu"] = self.src_layer(g.ndata["h"])
             g.ndata["hv"] = self.dst_layer(g.ndata["h"])
             g.apply_edges(dgl.function.u_add_v("hu", "hv", "h"))
