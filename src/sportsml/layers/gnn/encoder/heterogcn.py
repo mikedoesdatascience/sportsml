@@ -57,11 +57,11 @@ class HeteroGCNEncoder(torch.nn.Module, HyperparametersMixin):
             {
                 "win": (
                     dgl.function.copy_e("h", "m"),
-                    dgl.function.reducer.mean("m", "h"),
+                    dgl.function.reducer.sum("m", "h"),
                 ),
                 "loss": (
                     dgl.function.copy_e("h", "m"),
-                    dgl.function.reducer.mean("m", "h"),
+                    dgl.function.reducer.sum("m", "h"),
                 ),
             },
             "mean",
