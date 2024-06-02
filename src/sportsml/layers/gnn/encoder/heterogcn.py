@@ -64,7 +64,7 @@ class HeteroGCNEncoder(torch.nn.Module, HyperparametersMixin):
                     dgl.function.reducer.sum("m", "h"),
                 ),
             },
-            "mean",
+            "sum",
         )
 
     def forward(self, g):
