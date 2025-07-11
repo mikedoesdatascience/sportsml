@@ -1,0 +1,5 @@
+{
+    "postCreateCommand": "bash .devcontainer/postCreate.sh",
+    "postStartCommand": "bash .devcontainer/postStart.sh",
+    "postAttachCommand": "bash .devcontainer/postAttach.sh"
+}
