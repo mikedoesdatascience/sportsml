@@ -145,3 +145,5 @@ notebooks/models
 /outputs
 /multirun
 mlruns
+
+src/sportsml/_version.py

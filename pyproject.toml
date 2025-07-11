@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling >= 1.13.0"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
@@ -31,6 +31,12 @@ dependencies = [
     "torchmetrics",
 ]
 
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/sportsml/_version.py"
+
 [tool.hatch.build.targets.wheel]
 include = [
   "*.yaml",
@@ -42,9 +48,6 @@ include = [
   "*.yaml",
 ]
 packages = ["src/sportsml"]
-
-[tool.hatch.version]
-path = "src/sportsml/__init__.py"
 
 [project.scripts]
 cfb_mongo_upload = "sportsml.cfb.data.download:mongo_upload"
