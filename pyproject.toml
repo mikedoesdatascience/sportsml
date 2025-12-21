@@ -1,17 +1,16 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "sportsml"
 description = "ML for sports"
 readme = "README.md"
 requires-python = ">=3.8"
-license-files = { paths = ["LICENSE"] }
-dynamic = ["version"]
+license = "MIT"
+version = "0.3.0.dev0"
 dependencies = [
     "captum",
-    "dgl",
     "google-cloud-storage",
     "hydra-core",
     "httpx",
@@ -23,31 +22,13 @@ dependencies = [
     "pandas",
     "pyarrow",
     "pydantic",
-    "pymongo[srv]",
+    "pymongo",
     "requests",
     "scikit-learn",
     "seaborn",
-    "torch<=2.1",
+    "torch",
     "torchmetrics",
 ]
-
-[tool.hatch.version]
-source = "vcs"
-
-[tool.hatch.build.hooks.vcs]
-version-file = "src/sportsml/_version.py"
-
-[tool.hatch.build.targets.wheel]
-include = [
-  "*.yaml",
-]
-packages = ["src/sportsml"]
-
-[tool.hatch.build.targets.sdist]
-include = [
-  "*.yaml",
-]
-packages = ["src/sportsml"]
 
 [project.scripts]
 cfb_mongo_upload = "sportsml.cfb.data.download:mongo_upload"
