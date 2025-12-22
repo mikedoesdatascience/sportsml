@@ -1,18 +1,12 @@
-VERSION ?= $(shell python -m hatch version)
+VERSION ?= $(shell uv version --short)
 REGISTRY ?= registry.gitlab.com/mikedoesdatascience/sportsml
 
 PLATFORM ?= cpu
 
 default: build
 
-pip-lock:
-	@docker run -it --rm \
-		-e PLATFORM=$(PLATFORM) \
-		-v $(shell pwd):$(shell pwd) \
-		-w $(shell pwd) \
-		python:3.11-slim \
-			bash scripts/pip-compile
-	
+get-version:
+	@echo $(VERSION)
 
 build:
 	@docker build \

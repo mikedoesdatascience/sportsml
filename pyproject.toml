@@ -8,7 +8,7 @@ description = "ML for sports"
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
-version = "0.3.0.dev0"
+version = "0.4.0.dev1"
 dependencies = [
     "captum",
     "google-cloud-storage",
