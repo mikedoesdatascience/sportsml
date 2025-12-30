@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 from pymongo import ReplaceOne
 
@@ -32,13 +34,19 @@ def get_schedule():
     )
     return schedule
 
-
-def mongo_upload():
+def download(output_file: str = None):
     games = get_game_totals()
     schedule = get_schedule()
     games = merge_games_schedule(games, schedule)
     games["src"] = games["opp_team"].map(team_abr_lookup)
     games["dst"] = games["team"].map(team_abr_lookup)
+    if output_file is not None:
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+        games.to_csv(output_file, index=False)
+    return games
+
+def mongo_upload():
+    games = download()
     updates = [
         ReplaceOne({"_id": game["_id"]}, game, upsert=True)
         for game in games.to_dict(orient="records")

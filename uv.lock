@@ -2661,6 +2661,41 @@ wheels = [
 ]
 
 [[package]]
+name = "jsonargparse"
+version = "4.40.2"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.9' and sys_platform != 'win32'",
+    "python_full_version < '3.9' and sys_platform == 'win32'",
+]
+dependencies = [
+    { name = "pyyaml", marker = "python_full_version < '3.9'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bd/ca/d0d0833cfba28631e25a9833fa0b3b336ea8f34ad35dde1108a0b834523f/jsonargparse-4.40.2.tar.gz", hash = "sha256:91e775b4ffba72bc5bbdab39d2f3efeb8ca84285def706d534edeed621cf0cb7", size = 203937, upload-time = "2025-08-06T05:00:04.275Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/ba/76643ce22e178c6f7873cc4684878162e6a558be159bb356691a12c8d0d9/jsonargparse-4.40.2-py3-none-any.whl", hash = "sha256:94c770c383786513355a176e093dee9fdef21d7afab837789106af17e307eae3", size = 225035, upload-time = "2025-08-06T05:00:01.865Z" },
+]
+
+[[package]]
+name = "jsonargparse"
+version = "4.45.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.13'",
+    "python_full_version == '3.12.*'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+    "python_full_version == '3.9.*'",
+]
+dependencies = [
+    { name = "pyyaml", marker = "python_full_version >= '3.9'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/25/98/6a30ed2349c6a22a4401505022647542c6dbd952907a19c4dc797af70b98/jsonargparse-4.45.0.tar.gz", hash = "sha256:a082420a224c19843c396ac452a4dc7164d253688e0a6e4b7b01fabe81d72f4d", size = 219928, upload-time = "2025-12-26T14:27:50.324Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f3/63/aca864d4cd1bd03b4cec6ed9746c2c88807e590a54620a825610ffde56b3/jsonargparse-4.45.0-py3-none-any.whl", hash = "sha256:008211ef73065493e5526d2fd1d10ad5bf24801d6c95a55dfd94984a7dcd4f09", size = 243933, upload-time = "2025-12-26T14:27:48.416Z" },
+]
+
+[[package]]
 name = "kiwisolver"
 version = "1.4.7"
 source = { registry = "https://pypi.org/simple" }
@@ -6767,6 +6802,8 @@ dependencies = [
     { name = "google-cloud-storage" },
     { name = "httpx" },
     { name = "hydra-core" },
+    { name = "jsonargparse", version = "4.40.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "jsonargparse", version = "4.45.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "lightning", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "lightning", version = "2.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "mlflow", version = "2.17.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -6810,6 +6847,7 @@ requires-dist = [
     { name = "google-cloud-storage" },
     { name = "httpx" },
     { name = "hydra-core" },
+    { name = "jsonargparse" },
     { name = "lightning" },
     { name = "mlflow" },
     { name = "nba-api" },
