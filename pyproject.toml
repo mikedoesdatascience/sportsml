@@ -14,6 +14,7 @@ dependencies = [
     "google-cloud-storage",
     "hydra-core",
     "httpx",
+    "jsonargparse",
     "lightning",
     "nba_api",
     "networkx",
@@ -31,6 +32,7 @@ dependencies = [
 ]
 
 [project.scripts]
+sportsml = "sportsml.cli:cli"
 cfb_mongo_upload = "sportsml.cfb.data.download:mongo_upload"
 nba_mongo_upload = "sportsml.nba.data.download:mongo_upload"
 nfl_mongo_upload = "sportsml.nfl.data.download:mongo_upload"
