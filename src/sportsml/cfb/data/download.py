@@ -79,7 +79,7 @@ def game_to_dataframe(game):
             )
 
         df = df.astype(float)
-        df["team"] = team["school"]
+        df["team"] = team["team"]
         df["conference"] = team["conference"]
         df["home"] = int(team["homeAway"] == "home")
         df["points"] = team["points"]
