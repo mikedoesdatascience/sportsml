@@ -62,7 +62,5 @@ class HeteroNNEncoder(torch.nn.Module, HyperparametersMixin):
 
         if self.readout is not None:
             g.ndata["h"] = self.readout(g.ndata["h"])
-        
-        return g.ndata["h"]
 
-        
+        return g.ndata["h"]

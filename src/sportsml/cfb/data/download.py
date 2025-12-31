@@ -118,7 +118,6 @@ def download(output_file: str = None):
     return games
 
 
-
 def mongo_upload():
     games = download
     updates = [

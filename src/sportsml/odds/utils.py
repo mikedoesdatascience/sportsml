@@ -105,7 +105,7 @@ def get_market_on_date(
 def format_totals(row):
     res = {}
     for val in row["outcomes"]:
-        res[f'{val["name"].lower()}_price'] = val["price"]
+        res[f"{val['name'].lower()}_price"] = val["price"]
         res["over_under"] = val["point"]
     return res
 
