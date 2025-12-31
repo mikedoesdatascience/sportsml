@@ -57,6 +57,13 @@ def process_averages(
         game_id_column, drop=True
     )
 
-    first[opp_f_columns] = last[f_columns]
-    last[opp_f_columns] = first[f_columns]
+    first = pd.concat(
+        [first, last[f_columns].rename(columns={stat: f"OPP_{stat}" for stat in f_columns})],
+        axis=1,
+    )
+    last = pd.concat(
+        [last, first[f_columns].rename(columns={stat: f"OPP_{stat}" for stat in f_columns})],
+        axis=1,
+    )
+
     return pd.concat([first, last])
