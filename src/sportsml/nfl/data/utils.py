@@ -157,6 +157,7 @@ def get_games(query={}):
 
 def get_latest_graph():
     from ...utils.heterograph import heterograph_encoder
+
     games = get_games({"season": max(client.nfl.games.distinct("season"))})
     graph = heterograph_encoder(
         games["src"].values,

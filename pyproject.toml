@@ -91,3 +91,11 @@ explicit = true
 name = "pytorch-cu128"
 url = "https://download.pytorch.org/whl/cu128"
 explicit = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`), pycodestyle (`E`), and isort (`I`)
+select = ["F", "E", "I"]

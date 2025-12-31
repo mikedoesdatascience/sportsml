@@ -50,8 +50,12 @@ def process_averages(
         avg = avg.merge(rolling_stats, left_index=True, right_index=True)
     opp_f_columns = [f"OPP_{stat}" for stat in f_columns]
 
-    first = avg.drop_duplicates(game_id_column, keep="first").set_index(game_id_column, drop=True)
-    last = avg.drop_duplicates(game_id_column, keep="last").set_index(game_id_column, drop=True)
+    first = avg.drop_duplicates(game_id_column, keep="first").set_index(
+        game_id_column, drop=True
+    )
+    last = avg.drop_duplicates(game_id_column, keep="last").set_index(
+        game_id_column, drop=True
+    )
 
     first[opp_f_columns] = last[f_columns]
     last[opp_f_columns] = first[f_columns]
