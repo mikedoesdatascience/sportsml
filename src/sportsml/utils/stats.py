@@ -6,23 +6,25 @@ import pandas as pd
 def process_averages(
     games: pd.DataFrame,
     stats_columns: List[str],
-    game_id_column: str,
-    season_column: str,
-    date_column: str,
-    team_column: str,
-    rolling_windows: List[int],
+    game_id_column: str = "game_id",
+    season_column: str = "season",
+    date_column: str = "date",
+    team_column: str = "team",
+    rolling_windows: List[int] = None,
     use_all_data: bool = False,
 ) -> pd.DataFrame:
     # if we use_all_data then expanding means should not be shifted
     # and rolling means should not be closed
-    # use_all_data should be True when generating data for training
+    # use_all_data should be False when generating data for training
     shift = 0 if use_all_data else 1
-    closed = None if use_all_data else "left"
+    closed = "both" if use_all_data else "left"
+
+    rolling_windows = rolling_windows or [1, 3, 5, 10]
 
     f_columns = []
 
     games = games.sort_values([season_column, date_column])
-    avg = games.copy().drop(stats_columns, axis=1)
+    avg = games[[game_id_column]].copy()
     avg_stats = (
         games.groupby([season_column, team_column])[stats_columns]
         .expanding()
@@ -48,9 +50,9 @@ def process_averages(
         avg = avg.merge(rolling_stats, left_index=True, right_index=True)
     opp_f_columns = [f"OPP_{stat}" for stat in f_columns]
 
-    first = avg.drop_duplicates("GameID", keep="first").set_index("GameID", drop=True)
-    last = avg.drop_duplicates("GameID", keep="last").set_index("GameID", drop=True)
+    first = avg.drop_duplicates(game_id_column, keep="first").set_index(game_id_column, drop=True)
+    last = avg.drop_duplicates(game_id_column, keep="last").set_index(game_id_column, drop=True)
 
     first[opp_f_columns] = last[f_columns]
     last[opp_f_columns] = first[f_columns]
-    return pd.concat([first, last]).reset_index()
+    return pd.concat([first, last])
