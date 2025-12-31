@@ -20,6 +20,11 @@ def cli():
             "version": version,
         },
         as_positional=False,
+        set_defaults={
+            "cfb.download.output_file": "data/cfb/raw.csv",
+            "nba.download.output_file": "data/nba/raw.csv",
+            "nfl.download.output_file": "data/nfl/raw.csv",
+        }
     )
 
 
