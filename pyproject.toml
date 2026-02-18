@@ -10,9 +10,7 @@ requires-python = ">=3.8"
 license = "MIT"
 version = "0.4.0.dev1"
 dependencies = [
-    "captum",
-    "google-cloud-storage",
-    "hydra-core",
+    "altair",
     "httpx",
     "jsonargparse",
     "lightning",
@@ -20,11 +18,11 @@ dependencies = [
     "networkx",
     "numpy",
     "mlflow",
+    "omegaconf",
     "pandas",
     "pyarrow",
     "pydantic",
     "pymongo",
-    "requests",
     "scikit-learn",
     "seaborn",
     "torch",
