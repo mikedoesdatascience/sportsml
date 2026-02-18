@@ -1,4 +1,5 @@
 {
   "name": "sportsml",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11"
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "postCreateCommand": "echo \"alias ltr='ls -lhtr'\" >> ~/.bash_aliases"
 }
