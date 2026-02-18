@@ -1,6 +1,7 @@
 import jsonargparse
 
 from . import __version__
+from .cbb.data.download import download as cbb_download
 from .cfb.data.download import download as cfb_download
 from .nba.data.download import download as nba_download
 from .nfl.data.download import download as nfl_download
@@ -14,6 +15,7 @@ def version():
 def cli():
     jsonargparse.auto_cli(
         {
+            "cbb": {"download": cbb_download},
             "cfb": {"download": cfb_download},
             "nba": {"download": nba_download},
             "nfl": {"download": nfl_download},
@@ -21,6 +23,7 @@ def cli():
         },
         as_positional=False,
         set_defaults={
+            "cbb.download.output_file": "data/cbb/raw.csv",
             "cfb.download.output_file": "data/cfb/raw.csv",
             "nba.download.output_file": "data/nba/raw.csv",
             "nfl.download.output_file": "data/nfl/raw.csv",
