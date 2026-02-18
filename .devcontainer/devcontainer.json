@@ -1,5 +1,8 @@
 {
-    "postCreateCommand": "bash .devcontainer/postCreate.sh",
-    "postStartCommand": "bash .devcontainer/postStart.sh",
-    "postAttachCommand": "bash .devcontainer/postAttach.sh"
+  "name": "sportsml",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers-extra/features/uv:1": {}
+  },
+  "postCreateCommand": "echo \"alias ltr='ls -lhtr'\" >> ~/.bash_aliases"
 }
