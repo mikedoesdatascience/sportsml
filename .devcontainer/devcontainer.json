@@ -1,5 +1,4 @@
 {
-    "postCreateCommand": "bash .devcontainer/postCreate.sh",
-    "postStartCommand": "bash .devcontainer/postStart.sh",
-    "postAttachCommand": "bash .devcontainer/postAttach.sh"
+  "name": "sportsml",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11"
 }
