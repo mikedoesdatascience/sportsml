@@ -6,7 +6,7 @@ import pandas as pd
 def process_averages(
     games: pd.DataFrame,
     stats_columns: List[str],
-    game_meta_columns: List[str] = ["game_id"],
+    game_meta_columns: List[str] = None,
     season_column: str = "season",
     date_column: str = "date",
     team_column: str = "team",
@@ -17,9 +17,8 @@ def process_averages(
     rolling_suffix: str = "_rolling",
     opp_prefix: str = "opp_",
 ) -> pd.DataFrame:
-    # if we use_all_data then expanding means should not be shifted
-    # and rolling means should not be closed
-    # use_all_data should be False when generating data for training
+    game_meta_columns = game_meta_columns or []
+    
     shift = 0 if use_all_data else 1
     closed = "right" if use_all_data else "left"
 
