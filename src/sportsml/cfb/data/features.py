@@ -31,6 +31,12 @@ STATS_COLUMNS = [
     "thirdDownConv",
 ]
 
+CATEGORICAL_COLUMNS = [
+    "team",
+    "opp_team",
+    "home"
+]
+
 OPP_STATS_COLUMNS = [f"opp_{col}" for col in STATS_COLUMNS]
 
 FEATURE_COLUMNS = (
