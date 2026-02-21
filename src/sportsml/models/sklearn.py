@@ -34,7 +34,6 @@ def train_sklearn(
     test_size: float = 0.2,
     rolling_windows: List[int] = None,
     random_state: int = 42,
-    rf_kwargs: Dict[str, Any] = {},
     print_metrics: bool = False,
 ):
     avgs = process_averages(
