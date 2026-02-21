@@ -31,6 +31,12 @@ STATS_COLUMNS = [
     "thirdDownConv",
 ]
 
+CATEGORICAL_COLUMNS = [
+    "team",
+    "opp_team",
+    "home"
+]
+
 OPP_STATS_COLUMNS = [f"opp_{col}" for col in STATS_COLUMNS]
 
 FEATURE_COLUMNS = (
@@ -41,3 +47,9 @@ FEATURE_COLUMNS = (
 )
 
 GRAPH_FEATURES = STATS_COLUMNS + OPP_STATS_COLUMNS
+
+TARGET_COLUMN = "result"
+SEASON_COLUMN = "season"
+DATE_COLUMN = "week"
+TEAM_COLUMN = "team"
+TEAM_OPP_COLUMN = "opp_team"

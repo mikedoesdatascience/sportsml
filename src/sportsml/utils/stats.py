@@ -6,26 +6,28 @@ import pandas as pd
 def process_averages(
     games: pd.DataFrame,
     stats_columns: List[str],
-    game_id_column: str = "game_id",
+    game_meta_columns: List[str] = None,
     season_column: str = "season",
     date_column: str = "date",
     team_column: str = "team",
+    team_opp_column: str = "team_opp",
     rolling_windows: List[int] = None,
     use_all_data: bool = False,
+    avg_suffix: str = "_avg",
+    rolling_suffix: str = "_rolling",
+    opp_prefix: str = "opp_",
 ) -> pd.DataFrame:
-    # if we use_all_data then expanding means should not be shifted
-    # and rolling means should not be closed
-    # use_all_data should be False when generating data for training
+    game_meta_columns = game_meta_columns or []
+    
     shift = 0 if use_all_data else 1
-    closed = "both" if use_all_data else "left"
+    closed = "right" if use_all_data else "left"
 
-    rolling_windows = rolling_windows or [1, 3, 5, 10]
-
-    f_columns = []
+    rolling_windows = rolling_windows or []
 
     games = games.sort_values([season_column, date_column])
-    avg = games[[game_id_column]].copy()
-    avg_stats = (
+    avg = games[game_meta_columns].copy()
+
+    expanding_stats = (
         games.groupby([season_column, team_column])[stats_columns]
         .expanding()
         .mean()
@@ -33,9 +35,20 @@ def process_averages(
         .shift(shift)
         .droplevel([0, 1])
     )
-    avg_stats.columns = [f"{col}_avg" for col in avg_stats.columns]
-    f_columns += avg_stats.columns.tolist()
-    avg = avg.merge(avg_stats, left_index=True, right_index=True)
+    avg = avg.join(expanding_stats.add_suffix(avg_suffix), how="left")
+
+    expanding_stats_opp = (
+        games.groupby([season_column, team_opp_column])[stats_columns]
+        .expanding()
+        .mean()
+        .groupby([season_column, team_opp_column])
+        .shift(shift)
+        .droplevel([0, 1])
+    )
+    avg = avg.join(
+        expanding_stats_opp.add_prefix(opp_prefix).add_suffix(avg_suffix), how="left"
+    )
+
     for rolling_window in rolling_windows:
         rolling_stats = (
             games.groupby([season_column, team_column])[stats_columns]
@@ -43,20 +56,21 @@ def process_averages(
             .mean()
             .droplevel([0, 1])
         )
-        rolling_stats.columns = [
-            f"{col}_rolling_{rolling_window}" for col in rolling_stats.columns
-        ]
-        f_columns += rolling_stats.columns.tolist()
-        avg = avg.merge(rolling_stats, left_index=True, right_index=True)
-    opp_f_columns = [f"OPP_{stat}" for stat in f_columns]
+        avg = avg.join(
+            rolling_stats.add_suffix(f"{rolling_suffix}_{rolling_window}"), how="left"
+        )
 
-    first = avg.drop_duplicates(game_id_column, keep="first").set_index(
-        game_id_column, drop=True
-    )
-    last = avg.drop_duplicates(game_id_column, keep="last").set_index(
-        game_id_column, drop=True
-    )
+        rolling_stats_opp = (
+            games.groupby([season_column, team_opp_column])[stats_columns]
+            .rolling(rolling_window, 1, closed=closed)
+            .mean()
+            .droplevel([0, 1])
+        )
+        avg = avg.join(
+            rolling_stats_opp.add_prefix(opp_prefix).add_suffix(
+                f"{rolling_suffix}_{rolling_window}"
+            ),
+            how="left",
+        )
 
-    first[opp_f_columns] = last[f_columns]
-    last[opp_f_columns] = first[f_columns]
-    return pd.concat([first, last])
+    return avg
