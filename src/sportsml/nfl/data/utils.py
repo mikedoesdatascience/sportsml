@@ -1,7 +1,7 @@
 import pandas as pd
 
 from ...mongo import client, group_aggregation
-from .features import OPP_STATS_COLUMNS, STATS_COLUMNS, GRAPH_FEATURES
+from .features import GRAPH_FEATURES, OPP_STATS_COLUMNS, STATS_COLUMNS
 from .names import move_map
 from .nodes import team_abr_map
 
