@@ -6,6 +6,8 @@ import scipy.stats
 import sklearn.ensemble
 import sklearn.metrics
 import sklearn.model_selection
+from sklearn.impute import KNNImputer
+from sklearn.preprocessing import OneHotEncoder
 
 from ..utils.stats import process_averages
 
@@ -26,6 +28,8 @@ def train_rf(
     date_column: str,
     team_column: str,
     team_opp_column: str,
+    meta_columns: List[str] = None,
+    categorical_columns: List[str] = None,
     test_size: float = 0.2,
     rolling_windows: List[int] = None,
     random_state: int = 42,
@@ -42,8 +46,20 @@ def train_rf(
         rolling_windows=rolling_windows,
     ).dropna()
 
-    y = games.loc[avgs.index, target_column].values
     X = avgs.values
+    y = games.loc[avgs.index, target_column].values
+
+    if meta_columns:
+        meta_data = games.loc[avgs.index, meta_columns]
+        X_meta = KNNImputer(n_neighbors=10).fit_transform(meta_data.values)
+        X = np.hstack([X, X_meta])
+    
+    if categorical_columns:
+        cat_data = games.loc[avgs.index, categorical_columns]
+        X_cat = OneHotEncoder(
+            sparse_output=False, min_frequency=10, handle_unknown="ignore"
+        ).fit_transform(cat_data.values)
+        X = np.hstack([X, X_cat])
 
     if test_size > 0:
         X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(
