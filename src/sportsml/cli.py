@@ -1,7 +1,6 @@
 import jsonargparse
 import jsonargparse.typing
 import pandas as pd
-import sklearn.ensemble
 
 from . import __version__
 from .cbb.data import features as cbb_features
@@ -37,7 +36,9 @@ def cli():
         set_defaults={
             "cbb.download.output_file": "data/cbb/raw.csv",
             "cbb.sklearn.train.games": "data/cbb/raw.csv",
-            "cbb.sklearn.train.model": {"class_path": "sklearn.ensemble.RandomForestRegressor"},
+            "cbb.sklearn.train.model": {
+                "class_path": "sklearn.ensemble.RandomForestRegressor"
+            },
             "cbb.sklearn.train.stats_columns": cbb_features.STATS_COLUMNS,
             "cbb.sklearn.train.categorical_columns": cbb_features.CATEGORICAL_COLUMNS,
             "cbb.sklearn.train.target_column": cbb_features.TARGET_COLUMN,
@@ -48,7 +49,9 @@ def cli():
             "cbb.sklearn.train.print_metrics": True,
             "cfb.download.output_file": "data/cfb/raw.csv",
             "cfb.sklearn.train.games": "data/cfb/raw.csv",
-            "cfb.sklearn.train.model": {"class_path": "sklearn.ensemble.RandomForestRegressor"},
+            "cfb.sklearn.train.model": {
+                "class_path": "sklearn.ensemble.RandomForestRegressor"
+            },
             "cfb.sklearn.train.stats_columns": cfb_features.STATS_COLUMNS,
             "cfb.sklearn.train.categorical_columns": cfb_features.CATEGORICAL_COLUMNS,
             "cfb.sklearn.train.target_column": cfb_features.TARGET_COLUMN,
@@ -58,9 +61,23 @@ def cli():
             "cfb.sklearn.train.team_opp_column": cfb_features.TEAM_OPP_COLUMN,
             "cfb.sklearn.train.print_metrics": True,
             "nba.download.output_file": "data/nba/raw.csv",
+            "nba.sklearn.train.games": "data/nba/raw.csv",
+            "nba.sklearn.train.model": {
+                "class_path": "sklearn.ensemble.RandomForestRegressor"
+            },
+            "nba.sklearn.train.stats_columns": nba_features.STATS_COLUMNS,
+            "nba.sklearn.train.categorical_columns": nba_features.CATEGORICAL_COLUMNS,
+            "nba.sklearn.train.target_column": nba_features.TARGET_COLUMN,
+            "nba.sklearn.train.season_column": nba_features.SEASON_COLUMN,
+            "nba.sklearn.train.date_column": nba_features.DATE_COLUMN,
+            "nba.sklearn.train.team_column": nba_features.TEAM_COLUMN,
+            "nba.sklearn.train.team_opp_column": nba_features.TEAM_OPP_COLUMN,
+            "nba.sklearn.train.print_metrics": True,
             "nfl.download.output_file": "data/nfl/raw.csv",
             "nfl.sklearn.train.games": "data/nfl/raw.csv",
-            "nfl.sklearn.train.model": {"class_path": "sklearn.ensemble.RandomForestRegressor"},
+            "nfl.sklearn.train.model": {
+                "class_path": "sklearn.ensemble.RandomForestRegressor"
+            },
             "nfl.sklearn.train.stats_columns": nfl_features.STATS_COLUMNS,
             "nfl.sklearn.train.meta_columns": nfl_features.META_COLUMNS,
             "nfl.sklearn.train.categorical_columns": nfl_features.CATEGORICAL_COLUMNS,
