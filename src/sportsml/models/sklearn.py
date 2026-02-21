@@ -20,8 +20,9 @@ def predict_with_uncertainty(rf: sklearn.ensemble.RandomForestRegressor, X: np.a
     return preds.mean(axis=0), preds.std(axis=0)
 
 
-def train_rf(
+def train_sklearn(
     games: pd.DataFrame,
+    model: sklearn.base.BaseEstimator,
     stats_columns: List[str],
     target_column: str,
     season_column: str,
@@ -71,13 +72,16 @@ def train_rf(
         X_test = None
         y_test = None
 
-    rf = sklearn.ensemble.RandomForestRegressor(**rf_kwargs)
-    rf.fit(X_train, y_train)
+    model.fit(X_train, y_train)
 
     if X_test is None:
-        return {"rf": rf}
+        return {"model": model}
 
-    preds, stds = predict_with_uncertainty(rf, X_test)
+    if isinstance(model, sklearn.ensemble.RandomForestRegressor):
+        preds, stds = predict_with_uncertainty(model, X_test)
+    else:
+        preds = model.predict(X_test)
+        stds = None
 
     metrics = {
         "rmse": sklearn.metrics.root_mean_squared_error(y_test, preds),
@@ -96,7 +100,7 @@ def train_rf(
             print(f"{metric_name}: {metric_value:.4f}")
 
     return {
-        "rf": rf,
+        "model": model,
         "preds": preds,
         "stds": stds,
         "metrics": metrics,
