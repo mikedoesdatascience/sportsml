@@ -26,6 +26,7 @@ dependencies = [
     "pymongo",
     "scikit-learn",
     "seaborn",
+    "torch_geometric",
     "torchmetrics",
 ]
 
