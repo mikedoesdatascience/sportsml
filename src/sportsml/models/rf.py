@@ -20,13 +20,13 @@ def predict_with_uncertainty(rf: sklearn.ensemble.RandomForestRegressor, X: np.a
 
 def train_rf(
     games: pd.DataFrame,
-    test_size: float,
     stats_columns: List[str],
     target_column: str,
     season_column: str,
     date_column: str,
     team_column: str,
     team_opp_column: str,
+    test_size: float = 0.2,
     rolling_windows: List[int] = None,
     random_state: int = 42,
     rf_kwargs: Dict[str, Any] = {},
