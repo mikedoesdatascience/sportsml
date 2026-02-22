@@ -1795,6 +1795,15 @@ wheels = [
 ]
 
 [[package]]
+name = "docstring-parser"
+version = "0.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b2/9d/c3b43da9515bd270df0f80548d9944e389870713cc1fe2b8fb35fe2bcefd/docstring_parser-0.17.0.tar.gz", hash = "sha256:583de4a309722b3315439bb31d64ba3eebada841f2e2cee23b99df001434c912", size = 27442, upload-time = "2025-07-21T07:35:01.868Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/55/e2/2537ebcff11c1ee1ff17d8d0b6f4db75873e3b0fb32c2d4a2ee31ecb310a/docstring_parser-0.17.0-py3-none-any.whl", hash = "sha256:cf2569abd23dce8099b300f9b4fa8191e9582dda731fd533daf54c4551658708", size = 36896, upload-time = "2025-07-21T07:35:00.684Z" },
+]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3007,9 +3016,25 @@ name = "importlib-resources"
 version = "6.5.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
     "python_full_version == '3.9.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
     "python_full_version == '3.9.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version >= '3.13' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
     "python_full_version == '3.9.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version >= '3.13' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
     "python_full_version == '3.9.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
 ]
 dependencies = [
@@ -3102,6 +3127,13 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/ba/76643ce22e178c6f7873cc4684878162e6a558be159bb356691a12c8d0d9/jsonargparse-4.40.2-py3-none-any.whl", hash = "sha256:94c770c383786513355a176e093dee9fdef21d7afab837789106af17e307eae3", size = 225035, upload-time = "2025-08-06T05:00:01.865Z" },
 ]
 
+[package.optional-dependencies]
+signatures = [
+    { name = "docstring-parser", marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "typeshed-client", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+]
+
 [[package]]
 name = "jsonargparse"
 version = "4.46.0"
@@ -3134,6 +3166,13 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/6a/0f/333d4aa9c62edf3cf2c11f5bac8f487ece29b94be7ea2c6acb1a9265a723/jsonargparse-4.46.0.tar.gz", hash = "sha256:4c331448841fea9cb2b41bf99adbea70a63f82cac516f2f13030378b3d93c329", size = 222042, upload-time = "2026-02-02T10:29:13.837Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c0/6d/55e0db968193fcb12a3b4a9d823f6f9c8a39df1e28345daa3772b61f4389/jsonargparse-4.46.0-py3-none-any.whl", hash = "sha256:1f218fc2af1190c6425860e40af2003c8ca1f59e10d656fc67bbc32380a25ec3", size = 246093, upload-time = "2026-02-02T10:29:11.837Z" },
+]
+
+[package.optional-dependencies]
+signatures = [
+    { name = "docstring-parser", marker = "python_full_version >= '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "typeshed-client", version = "2.8.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "typing-extensions", version = "4.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
 ]
 
 [[package]]
@@ -8601,8 +8640,8 @@ dependencies = [
     { name = "altair", version = "5.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
     { name = "altair", version = "6.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
     { name = "httpx" },
-    { name = "jsonargparse", version = "4.40.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
-    { name = "jsonargparse", version = "4.46.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "jsonargparse", version = "4.40.2", source = { registry = "https://pypi.org/simple" }, extra = ["signatures"], marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "jsonargparse", version = "4.46.0", source = { registry = "https://pypi.org/simple" }, extra = ["signatures"], marker = "python_full_version >= '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
     { name = "kaggle", version = "1.7.4.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
     { name = "kaggle", version = "2.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
     { name = "lightning", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
@@ -8663,7 +8702,7 @@ cpu = [
 requires-dist = [
     { name = "altair" },
     { name = "httpx" },
-    { name = "jsonargparse" },
+    { name = "jsonargparse", extras = ["signatures"] },
     { name = "kaggle" },
     { name = "lightning" },
     { name = "mlflow" },
@@ -9634,6 +9673,58 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/df/3d/9e7eee57b37c80cec63322c0231bb6da3cfe535a91d7a4d64896fcb89357/triton-3.6.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a17a5d5985f0ac494ed8a8e54568f092f7057ef60e1b0fa09d3fd1512064e803", size = 188273063, upload-time = "2026-01-20T16:01:07.278Z" },
     { url = "https://files.pythonhosted.org/packages/48/db/56ee649cab5eaff4757541325aca81f52d02d4a7cd3506776cad2451e060/triton-3.6.0-cp314-cp314t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0b3a97e8ed304dfa9bd23bb41ca04cdf6b2e617d5e782a8653d616037a5d537d", size = 176274804, upload-time = "2026-01-20T16:16:31.528Z" },
     { url = "https://files.pythonhosted.org/packages/f6/56/6113c23ff46c00aae423333eb58b3e60bdfe9179d542781955a5e1514cb3/triton-3.6.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:46bd1c1af4b6704e554cad2eeb3b0a6513a980d470ccfa63189737340c7746a7", size = 188397994, upload-time = "2026-01-20T16:01:14.236Z" },
+]
+
+[[package]]
+name = "typeshed-client"
+version = "2.7.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.9' and sys_platform != 'win32'",
+    "python_full_version < '3.9' and sys_platform == 'win32'",
+]
+dependencies = [
+    { name = "importlib-resources", version = "6.4.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/65/1e/f20e33447be772486acf028295cdd21437454a051adb602d52ddb5334f9e/typeshed_client-2.7.0.tar.gz", hash = "sha256:e63df1e738588ad39f1226de042f4407ab6a99c456f0837063afd83b1415447c", size = 433569, upload-time = "2024-07-16T17:01:17.181Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/39/4702c2901899c018189b9aa7eb75aa8eb54527aed71c3f285895190dc664/typeshed_client-2.7.0-py3-none-any.whl", hash = "sha256:97084e5abc58a76ace2c4618ecaebd625f2d19bbd85aa1b3fb86216bf174bbea", size = 624417, upload-time = "2024-07-16T17:01:15.246Z" },
+]
+
+[[package]]
+name = "typeshed-client"
+version = "2.8.2"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.9.*' and sys_platform != 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version == '3.9.*' and sys_platform == 'darwin' and extra != 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu'",
+    "python_full_version >= '3.13' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.9.*' and extra == 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version >= '3.13' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.12.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.11.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.10.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+    "python_full_version == '3.9.*' and extra != 'extra-8-sportsml-cu128' and extra != 'group-8-sportsml-cpu'",
+]
+dependencies = [
+    { name = "importlib-resources", version = "6.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+    { name = "typing-extensions", version = "4.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9' or (extra == 'extra-8-sportsml-cu128' and extra == 'group-8-sportsml-cpu')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fe/3e/4074d3505b4700a6bf13cb1bb2d1848bb8c78e902e3f9fe5916274c5d284/typeshed_client-2.8.2.tar.gz", hash = "sha256:9d8e29fb74574d87bf9a719f77131dc40f2aeea20e97d25d4a3dc2cc30debd31", size = 501617, upload-time = "2025-07-16T01:49:49.299Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/11/db/e7474719e90062df673057e865f94f67da2d0b4f671d8051020c74962c77/typeshed_client-2.8.2-py3-none-any.whl", hash = "sha256:4cf886d976c777689cd31889f13abf5bfb7797c82519b07e5969e541380c75ee", size = 760467, upload-time = "2025-07-16T01:49:47.758Z" },
 ]
 
 [[package]]
