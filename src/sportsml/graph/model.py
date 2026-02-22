@@ -2,12 +2,16 @@ import lightning.pytorch as pl
 import torch
 import torchmetrics
 
+from .nn.encoder.edge_encoder import EdgeEncoder
+from .nn.encoder.mean import EdgeMean
+from .nn.predictor.ffn import EdgeFFN
+
 
 class GraphModel(pl.LightningModule):
     def __init__(
         self,
-        encoder: torch.nn.Module,
-        predictor: torch.nn.Module,
+        encoder: EdgeEncoder,
+        predictor: EdgeFFN,
         lr: float = 1e-3,
     ):
         super().__init__()
@@ -22,7 +26,6 @@ class GraphModel(pl.LightningModule):
                 torchmetrics.MeanSquaredError(squared=False),
                 torchmetrics.R2Score(),
                 torchmetrics.PearsonCorrCoef(),
-                torchmetrics.SpearmanCorrCoef(),
             ]
         )
         self.train_regression_metrics = regression_metrics.clone(prefix="train_")
