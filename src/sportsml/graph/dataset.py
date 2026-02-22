@@ -32,10 +32,10 @@ class GraphDataset(Dataset):
         )
         return min_gp[min_gp].index.tolist()
 
-    def len(self):
+    def __len__(self):
         return len(self.dates)
 
-    def get(self, idx: int):
+    def __getitem__(self, idx: int):
         season, date = self.dates[idx]
 
         games = self.games[

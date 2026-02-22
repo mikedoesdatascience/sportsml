@@ -12,7 +12,7 @@ def create_graph(
 ):
     num_nodes = games["src"].max() + 1
     edge_index = torch.tensor([games["src"].tolist(), games["dst"].tolist()])
-    y = torch.tensor(games[target_column].tolist())
+    y = torch.tensor(games[[target_column]].values, dtype=torch.float)
     edge_attr = torch.tensor(games[stats_columns].values, dtype=torch.float)
 
     train_mask = (
