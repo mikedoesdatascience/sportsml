@@ -146,4 +146,5 @@ notebooks/models
 /multirun
 mlruns
 
-src/sportsml/_version.py
+lightning_logs
+notebooks/lightning_logs
