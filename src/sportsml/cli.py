@@ -1,12 +1,15 @@
 import jsonargparse
 import jsonargparse.typing
 import pandas as pd
+from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+from lightning.pytorch.loggers import MLFlowLogger
 
 from . import __version__
 from .cbb.data import features as cbb_features
 from .cbb.data.download import download as cbb_download
 from .cfb.data import features as cfb_features
 from .cfb.data.download import download as cfb_download
+from .graph.fit import fit as pyg_fit
 from .models.sklearn import train_sklearn
 from .nba.data import features as nba_features
 from .nba.data.download import download as nba_download
@@ -28,6 +31,7 @@ def cli():
         {
             "cbb": {
                 "download": cbb_download,
+                "pyg": {"fit": pyg_fit},
                 "sklearn": {"train": train_sklearn},
             },
             "cfb": {
@@ -47,6 +51,33 @@ def cli():
         as_positional=False,
         set_defaults={
             "cbb.download.output_file": "data/cbb/raw.csv",
+            "cbb.pyg.fit.datamodule": {
+                "games": "data/cbb/raw.csv",
+                "stats_columns": cbb_features.GRAPH_STATS_COLUMNS,
+                "target_column": cbb_features.TARGET_COLUMN,
+                "season_column": cbb_features.SEASON_COLUMN,
+                "date_column": cbb_features.DATE_COLUMN,
+            },
+            "cbb.pyg.fit.model": {
+                "encoder": {
+                    "in_edge_channels": len(cbb_features.GRAPH_STATS_COLUMNS),
+                    "out_channels": 300,
+                },
+                "predictor": {
+                    "in_dim": 300,
+                    "hidden_dim": 300,
+                    "out_dim": 1,
+                },
+            },
+            "cbb.pyg.fit.trainer": {
+                "devices": 1,
+                "max_epochs": 100,
+                "logger": MLFlowLogger("cbb"),
+                "callbacks": [
+                    EarlyStopping(monitor="val_loss", patience=50, mode="min"),
+                    ModelCheckpoint(monitor="val_loss", mode="min"),
+                ]
+            },
             "cbb.sklearn.train.games": "data/cbb/raw.csv",
             "cbb.sklearn.train.model": {
                 "class_path": "sklearn.ensemble.RandomForestRegressor"
