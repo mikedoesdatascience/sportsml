@@ -10,7 +10,7 @@ from .nn.predictor.ffn import EdgeFFN
 class GraphModel(pl.LightningModule):
     def __init__(
         self,
-        encoder: EdgeEncoder,
+        encoder: EdgeEncoder | EdgeMean,
         predictor: EdgeFFN,
         lr: float = 1e-3,
     ):

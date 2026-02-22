@@ -60,11 +60,10 @@ def cli():
             },
             "cbb.pyg.fit.model": {
                 "encoder": {
-                    "in_edge_channels": len(cbb_features.GRAPH_STATS_COLUMNS),
-                    "out_channels": 300,
+                    "class_path": "sportsml.graph.nn.encoder.mean.EdgeMean",
                 },
                 "predictor": {
-                    "in_dim": 300,
+                    "in_dim": len(cbb_features.GRAPH_STATS_COLUMNS),
                     "hidden_dim": 300,
                     "out_dim": 1,
                 },
