@@ -26,10 +26,22 @@ def version():
 def cli():
     jsonargparse.auto_cli(
         {
-            "cbb": {"download": cbb_download, "sklearn": {"train": train_sklearn}},
-            "cfb": {"download": cfb_download, "sklearn": {"train": train_sklearn}},
-            "nba": {"download": nba_download, "sklearn": {"train": train_sklearn}},
-            "nfl": {"download": nfl_download, "sklearn": {"train": train_sklearn}},
+            "cbb": {
+                "download": cbb_download,
+                "sklearn": {"train": train_sklearn},
+            },
+            "cfb": {
+                "download": cfb_download,
+                "sklearn": {"train": train_sklearn},
+            },
+            "nba": {
+                "download": nba_download,
+                "sklearn": {"train": train_sklearn},
+            },
+            "nfl": {
+                "download": nfl_download,
+                "sklearn": {"train": train_sklearn},
+            },
             "version": version,
         },
         as_positional=False,
