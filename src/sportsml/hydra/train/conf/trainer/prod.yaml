@@ -1,9 +1,0 @@
-_target_: lightning.pytorch.Trainer
-default_root_dir: ${hydra:run.dir}
-max_epochs: 20
-logger:
-  _target_: lightning.pytorch.loggers.CSVLogger
-  save_dir: ${hydra:run.dir}
-  name: model
-callbacks:
-  - _target_: lightning.pytorch.callbacks.ModelCheckpoint

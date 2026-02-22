@@ -1,7 +1,0 @@
-defaults:
-  - model: gnn
-  - dm: nfl
-  - trainer: early_stopping
-  - _self_
-
-seed: null
