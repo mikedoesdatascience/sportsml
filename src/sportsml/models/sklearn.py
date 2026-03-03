@@ -31,11 +31,20 @@ def train_sklearn(
     team_opp_column: str,
     meta_columns: List[str] = None,
     categorical_columns: List[str] = None,
-    test_size: float = 0.2,
+    train_seasons: list[int] = None,
+    test_seasons: list[int] = None,
     rolling_windows: List[int] = None,
     random_state: int = 42,
     print_metrics: bool = False,
 ):
+    unique_seasons = sorted(games[season_column].unique(), reverse=True)
+
+    if test_seasons is None:
+        test_seasons = unique_seasons[:1]
+    
+    if train_seasons is None:
+        train_seasons = [s for s in unique_seasons if s not in test_seasons]
+
     avgs = process_averages(
         games,
         stats_columns=stats_columns,
@@ -53,7 +62,7 @@ def train_sklearn(
         meta_data = games.loc[avgs.index, meta_columns]
         X_meta = KNNImputer(n_neighbors=10).fit_transform(meta_data.values)
         X = np.hstack([X, X_meta])
-    
+
     if categorical_columns:
         cat_data = games.loc[avgs.index, categorical_columns]
         X_cat = OneHotEncoder(
@@ -61,10 +70,19 @@ def train_sklearn(
         ).fit_transform(cat_data.values)
         X = np.hstack([X, X_cat])
 
-    if test_size > 0:
-        X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(
-            X, y, test_size=test_size, random_state=random_state
-        )
+    if test_seasons:
+        X_train = X[
+            games.loc[avgs.index, season_column].isin(
+                [s for s in unique_seasons if s not in test_seasons]
+            )
+        ]
+        y_train = y[
+            games.loc[avgs.index, season_column].isin(
+                [s for s in unique_seasons if s not in test_seasons]
+            )
+        ]
+        X_test = X[games.loc[avgs.index, season_column].isin(test_seasons)]
+        y_test = y[games.loc[avgs.index, season_column].isin(test_seasons)]
     else:
         X_train = X
         y_train = y
