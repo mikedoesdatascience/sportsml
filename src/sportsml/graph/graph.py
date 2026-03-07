@@ -1,7 +1,6 @@
 import pandas as pd
 import torch
 import torch_geometric as pyg
-from torch_geometric.data import Data
 
 
 def create_graph(
@@ -18,7 +17,7 @@ def create_graph(
     season = torch.tensor(games[season_column].values, dtype=torch.float)
     date = torch.tensor(games[date_column].values, dtype=torch.float)
 
-    graph = Data(
+    graph = pyg.data.Data(
         edge_index=edge_index,
         num_nodes=num_nodes,
         y=y,
