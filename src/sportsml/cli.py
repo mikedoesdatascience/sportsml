@@ -71,7 +71,7 @@ def cli():
             "cbb.pyg.fit.trainer": {
                 "devices": 1,
                 "max_epochs": 100,
-                "logger": MLFlowLogger("cbb"),
+                "logger": MLFlowLogger("cbb", tracking_uri="sqlite:///mlflow.db"),
                 "callbacks": [
                     EarlyStopping(monitor="val_loss", patience=50, mode="min"),
                     ModelCheckpoint(monitor="val_loss", mode="min"),
