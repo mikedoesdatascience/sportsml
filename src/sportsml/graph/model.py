@@ -66,16 +66,16 @@ class GraphModel(pl.LightningModule):
         preds = self.predictor(x, gp.edge_index)
 
         loss = torch.nn.functional.mse_loss(preds, gp.y)
-        self.log("train_loss", loss, prog_bar=True, batch_size=gp.num_edges)
+        self.log("train_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         regression_metrics_output = self.train_regression_metrics(preds, gp.y)
-        self.log_dict(regression_metrics_output, prog_bar=True, batch_size=gp.num_edges)
+        self.log_dict(regression_metrics_output, on_epoch=True, batch_size=gp.num_edges)
 
         classification_metrics_output = self.train_classification_metrics(
             preds > 0, gp.y > 0
         )
         self.log_dict(
-            classification_metrics_output, prog_bar=True, batch_size=gp.num_edges
+            classification_metrics_output, on_epoch=True, batch_size=gp.num_edges
         )
 
         return loss
@@ -88,16 +88,16 @@ class GraphModel(pl.LightningModule):
         preds = self.predictor(x, gp.edge_index)
 
         loss = torch.nn.functional.mse_loss(preds, gp.y)
-        self.log("val_loss", loss, prog_bar=True, batch_size=gp.num_edges)
+        self.log("val_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         regression_metrics_output = self.val_regression_metrics(preds, gp.y)
-        self.log_dict(regression_metrics_output, prog_bar=True, batch_size=gp.num_edges)
+        self.log_dict(regression_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         classification_metrics_output = self.val_classification_metrics(
             preds > 0, gp.y > 0
         )
         self.log_dict(
-            classification_metrics_output, prog_bar=True, batch_size=gp.num_edges
+            classification_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges
         )
 
     def test_step(self, graph, idx=None):
@@ -108,16 +108,16 @@ class GraphModel(pl.LightningModule):
         preds = self.predictor(x, gp.edge_index)
 
         loss = torch.nn.functional.mse_loss(preds, gp.y)
-        self.log("test_loss", loss, prog_bar=True, batch_size=gp.num_edges)
+        self.log("test_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         regression_metrics_output = self.test_regression_metrics(preds, gp.y)
-        self.log_dict(regression_metrics_output, prog_bar=True, batch_size=gp.num_edges)
+        self.log_dict(regression_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         classification_metrics_output = self.test_classification_metrics(
             preds > 0, gp.y > 0
         )
         self.log_dict(
-            classification_metrics_output, prog_bar=True, batch_size=gp.num_edges
+            classification_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges
         )
 
     @classmethod
