@@ -1,3 +1,0 @@
-_target_: sportsml.layers.gnn.encoder.nn.NNEncoder
-in_feats: 54
-out_feats: 100

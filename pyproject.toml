@@ -12,7 +12,7 @@ version = "0.4.0.dev1"
 dependencies = [
     "altair",
     "httpx",
-    "jsonargparse",
+    "jsonargparse[signatures]",
     "kaggle",
     "lightning",
     "nba_api",
@@ -26,6 +26,7 @@ dependencies = [
     "pymongo",
     "scikit-learn",
     "seaborn",
+    "torch_geometric",
     "torchmetrics",
 ]
 

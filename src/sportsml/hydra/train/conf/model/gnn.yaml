@@ -1,6 +1,0 @@
-defaults:
-  - encoder: heterogcn
-  - predictor: heteronn
-
-_target_: sportsml.models.gnn.GraphModel
-lr: 0.001
