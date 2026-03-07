@@ -59,8 +59,8 @@ class GraphModel(pl.LightningModule):
         return optimizer
 
     def training_step(self, graph, idx=None):
-        ge = graph.edge_subgraph(torch.where(graph.train_mask)[0])
-        gp = graph.edge_subgraph(torch.where(~graph.train_mask)[0])
+        ge = graph.edge_subgraph(graph.date < graph.date.max())
+        gp = graph.edge_subgraph(graph.date == graph.date.max())
 
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
@@ -79,8 +79,8 @@ class GraphModel(pl.LightningModule):
         return loss
 
     def validation_step(self, graph, idx=None):
-        ge = graph.edge_subgraph(torch.where(graph.train_mask)[0])
-        gp = graph.edge_subgraph(torch.where(~graph.train_mask)[0])
+        ge = graph.edge_subgraph(graph.date < graph.date.max())
+        gp = graph.edge_subgraph(graph.date == graph.date.max())
 
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
@@ -97,8 +97,8 @@ class GraphModel(pl.LightningModule):
         self.log_dict(classification_metrics_output, prog_bar=True)
 
     def test_step(self, graph, idx=None):
-        ge = graph.edge_subgraph(torch.where(graph.train_mask)[0])
-        gp = graph.edge_subgraph(torch.where(~graph.train_mask)[0])
+        ge = graph.edge_subgraph(graph.date < graph.date.max())
+        gp = graph.edge_subgraph(graph.date == graph.date.max())
 
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)

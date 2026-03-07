@@ -13,23 +13,27 @@ class GraphDataset(Dataset):
         season_column: str,
         date_column: str,
     ):
-        self.games = games.copy()
+        self.graph = create_graph(
+            games=games,
+            stats_columns=stats_columns,
+            target_column=target_column,
+            season_column=season_column,
+            date_column=date_column,
+        )
         self.stats_columns = stats_columns
         self.target_column = target_column
         self.season_column = season_column
         self.date_column = date_column
 
-        self.dates = self.filter_valid_dates()
+        self.dates = self.filter_valid_dates(games.copy())
 
-    def filter_valid_dates(self):
-        self.games["gp"] = (
-            self.games.sort_values([self.season_column, self.date_column])
+    def filter_valid_dates(self, games):
+        games["gp"] = (
+            games.sort_values([self.season_column, self.date_column])
             .groupby([self.season_column, "src"])
             .cumcount()
         )
-        min_gp = (
-            self.games.groupby([self.season_column, self.date_column])["gp"].min() > 0
-        )
+        min_gp = games.groupby([self.season_column, self.date_column])["gp"].min() > 0
         return min_gp[min_gp].index.tolist()
 
     def __len__(self):
@@ -38,18 +42,8 @@ class GraphDataset(Dataset):
     def __getitem__(self, idx: int):
         season, date = self.dates[idx]
 
-        games = self.games[
-            (self.games[self.season_column] == season)
-            & (self.games[self.date_column] <= date)
-        ]
-
-        train_mask = (games[self.date_column] < date).tolist()
-
-        graph = create_graph(
-            games=games,
-            stats_columns=self.stats_columns,
-            target_column=self.target_column,
-            train_mask=train_mask
+        graph = self.graph.edge_subgraph(
+            (self.graph.season == season) & (self.graph.date <= date)
         )
 
         return graph
