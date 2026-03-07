@@ -24,6 +24,7 @@ class OddsAPIClient(object):
     def odds(
         self,
         sport: str,
+        date: datetime.datetime | str = None,
         regions: str = "us",
         markets: str = "h2h,spreads,totals",
         odds_format: str = "american",
@@ -36,7 +37,15 @@ class OddsAPIClient(object):
             "oddsFormat": odds_format,
             "dateFormat": date_format,
         }
-        odds = self.get(f"sports/{sport}/odds", params)
+        path = f"sports/{sport}/odds"
+        if date is not None:
+            path = f"historical/{path}"
+            if isinstance(date, str):
+                date = datetime.datetime.fromisoformat(date)
+            params['date'] = date.strftime("%Y-%m-%dT%H:%M:%SZ")
+        odds = self.get(path, params)
+        if date is not None:
+            odds = odds["data"]
         for odd in odds:
             dt = datetime.datetime.fromisoformat(odd["commence_time"])
             odd["commence_time"] = dt.astimezone(
