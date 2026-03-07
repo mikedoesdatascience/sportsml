@@ -23,7 +23,6 @@ dependencies = [
     "pandas",
     "pyarrow",
     "pydantic",
-    "pymongo",
     "scikit-learn",
     "seaborn",
     "torch_geometric",

@@ -2,9 +2,7 @@ import pathlib
 import tempfile
 
 import pandas as pd
-import pymongo
 
-from ...mongo import client
 from .features import OPP_TEAM_STATS_COLUMNS, TEAM_STATS_COLUMNS
 from .nodes import team_name_map
 
@@ -87,19 +85,3 @@ def format_games(games, team_id_offset=1101):
         x.split(".")[:2]) + '.' + '.'.join(sorted(x.split(".")[2:])))
 
     return games
-
-
-def mongo_upload(games):
-    updates = [
-        pymongo.ReplaceOne({"_id": game["_id"]}, game, upsert=True)
-        for game in games.to_dict(orient="records")
-    ]
-    _ = client.cbb.games.bulk_write(updates)
-    return
-
-
-if __name__ == "__main__":
-    mongo_upload(format_games(pd.read_csv(
-        "data/MNCAATourneyDetailedResults.csv")))
-    mongo_upload(format_games(pd.read_csv(
-        "data/MRegularSeasonDetailedResults.csv")))

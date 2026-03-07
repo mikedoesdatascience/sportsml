@@ -5,10 +5,8 @@ from pathlib import Path
 import httpx
 import pandas as pd
 import tqdm
-from pymongo import ReplaceOne
 
 from .nodes import team_abr_lookup
-from ...mongo import client
 
 
 GAME_URL = "https://api.collegefootballdata.com/games/teams"
@@ -116,13 +114,3 @@ def download(output_file: str = None):
         Path(output_file).parent.mkdir(parents=True, exist_ok=True)
         games.to_csv(output_file, index=False)
     return games
-
-
-def mongo_upload():
-    games = download
-    updates = [
-        ReplaceOne({"_id": game["_id"]}, game, upsert=True)
-        for game in games.to_dict(orient="records")
-    ]
-    _ = client.cfb.games.bulk_write(updates)
-    return

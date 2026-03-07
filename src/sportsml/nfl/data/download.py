@@ -5,7 +5,6 @@ from pymongo import ReplaceOne
 
 from .nodes import team_abr_lookup
 from .utils import merge_games_schedule
-from ...mongo import client
 
 DATA_URL = (
     "https://github.com/nflverse/nflverse-data/releases/download/player_stats/"
@@ -48,13 +47,3 @@ def download(output_file: str = None):
         Path(output_file).parent.mkdir(parents=True, exist_ok=True)
         games.to_csv(output_file, index=False)
     return games
-
-
-def mongo_upload():
-    games = download()
-    updates = [
-        ReplaceOne({"_id": game["_id"]}, game, upsert=True)
-        for game in games.to_dict(orient="records")
-    ]
-    _ = client.nfl.games.bulk_write(updates)
-    return

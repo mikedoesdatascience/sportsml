@@ -1,13 +1,8 @@
 import pandas as pd
 
-from ...mongo import client, group_aggregation
 from .features import GRAPH_FEATURES, OPP_STATS_COLUMNS, STATS_COLUMNS
 from .names import move_map
 from .nodes import team_abr_map
-
-
-def get_team_abr_map():
-    return team_abr_map
 
 
 def merge_games_schedule(games, schedule):
@@ -85,85 +80,3 @@ def merge_games_schedule(games, schedule):
     games["home"] = games.apply(lambda x: int(x["game_id"].endswith(x["team"])), axis=1)
 
     return games
-
-
-def get_season_averages(season, week):
-    result = list(
-        client.nfl.games.aggregate(
-            [
-                {"$match": {"season": season, "week": {"$lt": week}}},
-                group_aggregation(STATS_COLUMNS + OPP_STATS_COLUMNS, "team"),
-            ]
-        )
-    )
-    return {
-        res.pop("_id"): {
-            "stats": {k: v for k, v in res.items() if "opp_" not in k},
-            "opp_stats": {k: v for k, v in res.items() if "opp_" in k},
-        }
-        for res in result
-    }
-
-
-def process_averages(games):
-    games = games.sort_values(["season", "week"])
-    avg = games.copy().drop(STATS_COLUMNS + OPP_STATS_COLUMNS, axis=1)
-    avg_stats = (
-        games.groupby(["season", "team"])[STATS_COLUMNS + OPP_STATS_COLUMNS]
-        .expanding()
-        .mean()
-        .groupby(["season", "team"])
-        .shift(1)
-        .droplevel([0, 1])
-    )
-    return avg.merge(avg_stats, left_index=True, right_index=True)
-
-
-def featurize_games(avgs):
-    avgs = avgs.copy()
-    opp_avgs = avgs.copy()
-    opp_avgs["_id"] = opp_avgs.apply(
-        lambda row: "-".join(
-            [
-                str(row["season"]),
-                str(row["week"]),
-                row["opp_team"],
-                row["team"],
-            ]
-        ),
-        axis=1,
-    )
-
-    stats = STATS_COLUMNS + OPP_STATS_COLUMNS
-
-    opp_stats = [f"{stat}_opp" for stat in stats]
-
-    avgs = avgs.set_index("_id")
-    opp_avgs = opp_avgs.set_index("_id")
-
-    avgs[opp_stats] = opp_avgs[stats]
-
-    return avgs
-
-
-def get_games(query={}):
-    df = pd.DataFrame(client.nfl.games.find(query)).sort_values(["season", "week"])
-    df = df[~df[GRAPH_FEATURES].isna().any(axis=1)]
-    df["won"] = df["score"] > df["opp_score"]
-    df["home"] = df["home"].astype(bool)
-    df["y"] = df["score"] - df["opp_score"]
-    return df
-
-
-def get_latest_graph():
-    from ...utils.heterograph import heterograph_encoder
-
-    games = get_games({"season": max(client.nfl.games.distinct("season"))})
-    graph = heterograph_encoder(
-        games["src"].values,
-        games["dst"].values,
-        feat=games[GRAPH_FEATURES].values,
-        win_mask=games["won"].values,
-        num_nodes=32,
-    )
-    return graph
