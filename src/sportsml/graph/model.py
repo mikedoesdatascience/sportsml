@@ -59,60 +59,66 @@ class GraphModel(pl.LightningModule):
         return optimizer
 
     def training_step(self, graph, idx=None):
-        ge = graph.edge_subgraph(torch.where(graph.train_mask)[0])
-        gp = graph.edge_subgraph(torch.where(~graph.train_mask)[0])
+        ge = graph.edge_subgraph(graph.date < graph.date.max())
+        gp = graph.edge_subgraph(graph.date == graph.date.max())
 
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
 
         loss = torch.nn.functional.mse_loss(preds, gp.y)
-        self.log("train_loss", loss, prog_bar=True)
+        self.log("train_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         regression_metrics_output = self.train_regression_metrics(preds, gp.y)
-        self.log_dict(regression_metrics_output, prog_bar=True)
+        self.log_dict(regression_metrics_output, on_epoch=True, batch_size=gp.num_edges)
 
         classification_metrics_output = self.train_classification_metrics(
             preds > 0, gp.y > 0
         )
-        self.log_dict(classification_metrics_output, prog_bar=True)
+        self.log_dict(
+            classification_metrics_output, on_epoch=True, batch_size=gp.num_edges
+        )
 
         return loss
 
     def validation_step(self, graph, idx=None):
-        ge = graph.edge_subgraph(torch.where(graph.train_mask)[0])
-        gp = graph.edge_subgraph(torch.where(~graph.train_mask)[0])
+        ge = graph.edge_subgraph(graph.date < graph.date.max())
+        gp = graph.edge_subgraph(graph.date == graph.date.max())
 
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
 
         loss = torch.nn.functional.mse_loss(preds, gp.y)
-        self.log("val_loss", loss, prog_bar=True)
+        self.log("val_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         regression_metrics_output = self.val_regression_metrics(preds, gp.y)
-        self.log_dict(regression_metrics_output, prog_bar=True)
+        self.log_dict(regression_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         classification_metrics_output = self.val_classification_metrics(
             preds > 0, gp.y > 0
         )
-        self.log_dict(classification_metrics_output, prog_bar=True)
+        self.log_dict(
+            classification_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges
+        )
 
     def test_step(self, graph, idx=None):
-        ge = graph.edge_subgraph(torch.where(graph.train_mask)[0])
-        gp = graph.edge_subgraph(torch.where(~graph.train_mask)[0])
+        ge = graph.edge_subgraph(graph.date < graph.date.max())
+        gp = graph.edge_subgraph(graph.date == graph.date.max())
 
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
 
         loss = torch.nn.functional.mse_loss(preds, gp.y)
-        self.log("test_loss", loss, prog_bar=True)
+        self.log("test_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         regression_metrics_output = self.test_regression_metrics(preds, gp.y)
-        self.log_dict(regression_metrics_output, prog_bar=True)
+        self.log_dict(regression_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges)
 
         classification_metrics_output = self.test_classification_metrics(
             preds > 0, gp.y > 0
         )
-        self.log_dict(classification_metrics_output, prog_bar=True)
+        self.log_dict(
+            classification_metrics_output, prog_bar=True, on_epoch=True, batch_size=gp.num_edges
+        )
 
     @classmethod
     def load_from_checkpoint(
