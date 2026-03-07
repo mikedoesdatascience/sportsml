@@ -47,3 +47,6 @@ class GraphDataset(Dataset):
         )
 
         return graph
+
+    def get_latest_graph(self):
+        return self[self.dates.index(sorted(self.dates)[-1])]
