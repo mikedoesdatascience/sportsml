@@ -145,6 +145,7 @@ notebooks/models
 /outputs
 /multirun
 mlruns
+mlflow.db
 
 lightning_logs
 notebooks/lightning_logs
