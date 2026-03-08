@@ -2,111 +2,96 @@ import datetime
 
 import pandas as pd
 
-from .client import OddsAPIClient
-from ..mongo import client
 
+def process_odds(odds, odds_map):
+    df = odds_to_dataframe(odds).dropna(subset=['last_update'])
+    df = consensus_odds(df)
+    df = df.replace({'home_team': odds_map, 'away_team': odds_map})
 
-def mongo_upload():
-    odds_client = OddsAPIClient()
-    sports = pd.DataFrame(odds_client.sports())
+    col_renamer = {
+        col: col.removeprefix("home_")
+        for col in df.columns
+        if "home_" in col
+    }
+    col_renamer.update({
+        col: col.replace("away_", "opp_")
+        for col in df.columns
+        if "away_" in col
+    })
 
-    if "basketball_nba" in sports["key"].values:
-        nba_odds = odds_client.odds("basketball_nba")
-        client.nba.odds.insert_many(nba_odds)
+    df = df.rename(columns=col_renamer)
 
-    if "americanfootball_nfl" in sports["key"].values:
-        nfl_odds = odds_client.odds("americanfootball_nfl")
-        client.nfl.odds.insert_many(nfl_odds)
-
-    if "basketball_ncaab" in sports["key"].values:
-        cbb_odds = odds_client.odds("basketball_ncaab")
-        client.cbb.odds.insert_many(cbb_odds)
-
-    if "americanfootball_ncaaf" in sports["key"].values:
-        cfb_odds = odds_client.odds("americanfootball_ncaaf")
-        client.cfb.odds.insert_many(cfb_odds)
-
-
-def get_lines(sport, query={}):
-    lines = pd.DataFrame(
-        client[sport].odds.aggregate(
-            [
-                {"$match": query},
-                {"$unwind": "$bookmakers"},
-                {"$unwind": "$bookmakers.markets"},
-            ]
-        )
-    )
-    return lines
-
-
-def lines_to_dataframe(lines):
-    lines = pd.concat(
-        [lines.drop("bookmakers", axis=1), pd.DataFrame(lines["bookmakers"].tolist())],
-        axis=1,
-    )
-    lines = lines.rename(columns={"key": "bookmaker"}).drop("last_update", axis=1)
-
-    lines = pd.concat(
-        [lines.drop("markets", axis=1), pd.DataFrame(lines["markets"].tolist())], axis=1
-    )
-    lines = lines.rename(columns={"key": "market"})
-    return lines
-
-
-def get_market_on_date(
-    sport: str,
-    market: str,
-    bookmaker: str = "draftkings",
-    game_date_str: str = datetime.date.today().isoformat(),
-    market_date_str: str = datetime.date.today().isoformat(),
-):
-    odds = lines_to_dataframe(
-        get_lines(
-            sport,
-            {
-                "commence_time": {"$regex": f"^{game_date_str}"},
-                "bookmakers.last_update": {"$regex": f"^{market_date_str}"},
-            },
-        )
-    )
-    df = (
-        odds[(odds["market"] == market) & (odds["bookmaker"] == bookmaker)]
-        .sort_values("commence_time")
-        .drop_duplicates(["home_team", "away_team"], keep="last")
-    ).reset_index(drop=True)
-    if market == "spreads":
-        df = pd.concat(
-            [
-                df.drop("outcomes", axis=1),
-                pd.DataFrame(df.apply(format_spreads, axis=1).tolist()),
-            ],
-            axis=1,
-        )
-    if market == "h2h":
-        df = pd.concat(
-            [
-                df.drop("outcomes", axis=1),
-                pd.DataFrame(df.apply(format_h2h, axis=1).tolist()),
-            ],
-            axis=1,
-        )
-    if market == "totals":
-        df = pd.concat(
-            [
-                df.drop("outcomes", axis=1),
-                pd.DataFrame(df.apply(format_totals, axis=1).tolist()),
-            ],
-            axis=1,
-        )
     return df
+
+
+def odds_to_dataframe(odds):
+    df = pd.DataFrame(odds).explode("bookmakers").reset_index(drop=True).dropna(subset=['bookmakers'])
+    bookmakers = (
+        pd.DataFrame(df["bookmakers"].tolist())
+        .rename(columns={"key": "bookmaker"})
+        .drop(columns=["title", "last_update"])
+    )
+    df = pd.concat([df.drop(columns=["bookmakers"]), bookmakers], axis=1)
+
+    df = df.explode("markets").reset_index(drop=True).dropna(subset=['markets'])
+    markets = pd.DataFrame(df["markets"].tolist()).rename(columns={"key": "market"})
+    df = pd.concat([df.drop(columns=["markets"]), markets], axis=1)
+
+    df = pd.concat([df.drop(columns=["outcomes"]), df.apply(format_row, axis=1)], axis=1)
+
+    df["market"] = df["market"].replace(
+        {"h2h": "moneyline", "spreads": "spread", "totals": "total"}
+    )
+
+    return df
+
+
+def consensus_odds(df: pd.DataFrame) -> pd.DataFrame:
+    cols = [
+        'away_moneyline',
+        'away_spread_odds',
+        'home_moneyline',
+        'home_spread_odds',
+        'over_odds',
+        'spread_line',
+        'total_line',
+        'under_odds'
+    ]
+    df = df.groupby(["commence_time", "home_team", "away_team", "market"])[
+        [col for col in cols if col in df]
+    ].mean().reset_index().assign(last_update=df['last_update'].max())
+
+    dfs = [
+        df[df['market'] == market].drop(columns=['market', 'last_update']).set_index(['home_team', 'away_team']).dropna(how='all', axis=1)
+        for market in ['moneyline', 'spread', 'total']
+        if df["market"].notnull().sum() > 0
+    ]
+
+    df = pd.concat(dfs, axis=1).reset_index().assign(last_update=df['last_update'].max())
+
+    df = df.loc[:, ~df.columns.duplicated()].dropna()
+
+    df = df[(pd.to_datetime(df['commence_time'], utc=True) - pd.to_datetime(df['last_update'], utc=True)).dt.days < 7]
+
+    return df
+
+
+def format_row(row):
+    if row["market"] == "h2h":
+        return pd.Series(format_h2h(row))
+    elif row["market"] == "spreads":
+        return pd.Series(format_spreads(row))
+    elif row["market"] == "totals":
+        return pd.Series(format_totals(row))
+    else:
+        return pd.Series()
 
 
 def format_totals(row):
     res = {}
     for val in row["outcomes"]:
-        res[f"{val['name'].lower()}_price"] = val["price"]
-        res["over_under"] = val["point"]
+        res[f"{val['name'].lower()}_odds"] = val["price"]
+        res["total_line"] = val["point"]
     return res
 
 
@@ -114,11 +99,10 @@ def format_spreads(row):
     res = {}
     for outcome in row["outcomes"]:
         if outcome["name"] == row["home_team"]:
-            res["home_spread_price"] = outcome["price"]
-            res["home_spread"] = outcome["point"]
+            res["home_spread_odds"] = outcome["price"]
+            res["spread_line"] = outcome["point"]
         if outcome["name"] == row["away_team"]:
-            res["away_spread_price"] = outcome["price"]
-            res["away_spread"] = outcome["point"]
+            res["away_spread_odds"] = outcome["price"]
     return res
 
 
@@ -126,7 +110,7 @@ def format_h2h(row):
     res = {}
     for outcome in row["outcomes"]:
         if outcome["name"] == row["home_team"]:
-            res["home_h2h_price"] = outcome["price"]
+            res["home_moneyline"] = outcome["price"]
         if outcome["name"] == row["away_team"]:
-            res["away_h2h_price"] = outcome["price"]
+            res["away_moneyline"] = outcome["price"]
     return res

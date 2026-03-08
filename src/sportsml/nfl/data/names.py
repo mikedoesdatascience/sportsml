@@ -33,4 +33,5 @@ odds_map = {
     "Seattle Seahawks": "SEA",
     "Dallas Cowboys": "DAL",
     "Washington Commanders": "WAS",
+    "Washington Football Team": "WAS",
 }
