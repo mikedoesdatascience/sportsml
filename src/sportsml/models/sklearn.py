@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 
+import mlflow.pyfunc
 import numpy as np
 import pandas as pd
 import scipy.stats
@@ -29,6 +30,7 @@ def train_sklearn(
     date_column: str,
     team_column: str,
     team_opp_column: str,
+    save_dir: str,
     meta_columns: List[str] = None,
     categorical_columns: List[str] = None,
     train_seasons: list[int] = None,
@@ -41,7 +43,7 @@ def train_sklearn(
 
     if test_seasons is None:
         test_seasons = unique_seasons[:1]
-    
+
     if train_seasons is None:
         train_seasons = [s for s in unique_seasons if s not in test_seasons]
 
@@ -116,9 +118,91 @@ def train_sklearn(
         for metric_name, metric_value in metrics.items():
             print(f"{metric_name}: {metric_value:.4f}")
 
+    season = games[games[season_column] == games[season_column].max()]
+    avgs = process_averages(
+        season,
+        stats_columns=stats_columns,
+        season_column=season_column,
+        date_column=date_column,
+        team_column=team_column,
+        team_opp_column=team_opp_column,
+        rolling_windows=rolling_windows,
+    )
+    team_stats = season.sort_values(
+        [season_column, date_column]
+    ).drop_duplicates(team_column, keep="last")
+
+    team_features = avgs.loc[team_stats.index]
+    team_features = team_features[[col for col in team_features.columns if not col.startswith('opp_')]]
+    team_features.index = team_features.index.map(team_stats[team_column])
+
+    predictor = SportsMLPredictor(model=model, team_features=team_features)
+
+    mlflow.pyfunc.save_model(save_dir, python_model=predictor)
+
     return {
         "model": model,
         "preds": preds,
         "stds": stds,
         "metrics": metrics,
     }
+
+
+class SportsMLPredictor(mlflow.pyfunc.PythonModel):
+    """
+    MLFlow Pyfunc model wrapper for sports prediction.
+
+    This model stores processed statistics per team and generates predictions
+    for pairs of teams using a fitted sklearn model.
+
+    Attributes:
+        model: The fitted sklearn model for predictions
+        team_stats: DataFrame containing processed statistics per team
+        meta_columns: List of metadata column names used in training
+        categorical_columns: List of categorical column names used in training
+        rolling_windows: List of rolling window sizes used in training
+        stats_columns: List of statistics column names used in training
+    """
+
+    def __init__(
+        self,
+        model: Any,
+        team_features: pd.DataFrame,
+    ):
+        """
+        Initialize the SportsML predictor.
+
+        Args:
+            model: Fitted sklearn model
+            team_features: DataFrame with team statistics (indexed by team ID)
+        """
+        self.model = model
+        self.team_features = team_features
+
+    def predict(self, model_input: pd.DataFrame) -> np.ndarray:
+        """
+        Generate predictions for team pairs.
+
+        Args:
+            context: MLFlow context (unused but required by PythonModel interface)
+            model_input: DataFrame with columns [team_id, team_opp_id] or similar.
+                        Column names should match what was used during training.
+                        Can also include: season, date for filtering team stats.
+
+        Returns:
+            Array of predictions (one per row in model_input)
+        """
+        X = np.hstack(
+            [
+                self.team_features.loc[model_input.team],
+                self.team_features.loc[model_input.opp],
+            ]
+        )
+
+        if isinstance(self.model, sklearn.ensemble.RandomForestRegressor):
+            preds, stds = predict_with_uncertainty(self.model, X)
+            result = model_input.assign(preds=preds, std=stds)
+        else:
+            preds = self.model.predict(X)
+            result = model_input.assign(preds=preds)
+        return result
