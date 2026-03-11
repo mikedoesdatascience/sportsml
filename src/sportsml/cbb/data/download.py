@@ -7,7 +7,7 @@ from .features import OPP_TEAM_STATS_COLUMNS, TEAM_STATS_COLUMNS
 from .nodes import team_name_map
 
 
-def download(output_file: str = None, year: int = 2025):
+def download(output_file: str = None, year: int = 2026):
     from kaggle.api.kaggle_api_extended import KaggleApi
 
     api = KaggleApi()

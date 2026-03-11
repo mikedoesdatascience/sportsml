@@ -12,10 +12,13 @@ class EdgeMean(MessagePassing, HyperparametersMixin):
 
     def __init__(
         self,
+        in_edge_channels: int,
     ):
         super().__init__(aggr="mean")
         self.save_hyperparameters()
         self.hparams["cls"] = self.__class__
+
+        self.bn = torch.nn.BatchNorm1d(in_edge_channels)
 
     def forward(self, edge_attr, edge_index, **kwargs):
         """
@@ -30,6 +33,7 @@ class EdgeMean(MessagePassing, HyperparametersMixin):
         aggr_edges = self.propagate(
             edge_index, edge_attr=edge_attr
         )  # [num_nodes, edge_feature_dim]
+        aggr_edges = self.bn(aggr_edges)
         return aggr_edges
 
     def message(self, edge_attr):

@@ -20,6 +20,7 @@ class EdgeEncoder(MessagePassing, HyperparametersMixin):
         self.save_hyperparameters()
         self.hparams["cls"] = self.__class__
 
+        self.bn = torch.nn.BatchNorm1d(in_edge_channels)
         self.lin_edge = torch.nn.Linear(in_edge_channels, out_channels)
         self.node_in_channels = node_in_channels
         if node_in_channels is not None:
@@ -28,29 +29,31 @@ class EdgeEncoder(MessagePassing, HyperparametersMixin):
             self.lin_node = None
         self.act = torch.nn.ReLU()
 
-    def forward(self, edge_attr, edge_index, x=None):
+    def forward(self, edge_attr, edge_index, x=None, meta_attr=None, cat_attr=None):
         """
         Args:
             edge_attr: Tensor with shape [num_edges, in_edge_channels]
             edge_index: LongTensor with shape [2, num_edges]
             x: optional node features Tensor with shape [num_nodes, node_in_channels]
         Returns:
-            Tensor of shape [num_nodes, out_channels]: node features produced from aggregated edges
+            Tensor of shape [num_nodes, out_channels]: node features
+            produced from aggregated edges
         """
         if edge_attr is None:
             raise ValueError("edge_attr must be provided")
-        aggr_edges = self.propagate(
-            edge_index, edge_attr=edge_attr
-        )  # [num_nodes, out_channels]
-        aggr_edges = self.act(aggr_edges)
+        edge_attr = self.bn(edge_attr)
+        edge_attr = self.lin_edge(edge_attr)
+        aggr = self.propagate(edge_index, edge_attr=edge_attr)
+        aggr = self.act(aggr)
+
         if self.lin_node is not None and x is not None:
             node_proj = self.lin_node(x)
-            return aggr_edges + node_proj
-        return aggr_edges
+            return aggr + node_proj
+        return aggr
 
     def message(self, edge_attr):
-        # transform edge features before aggregation
-        return self.lin_edge(edge_attr)
+        # lin already applied in forward
+        return edge_attr
 
     def update(self, aggr_out):
         # identity here; activation handled in forward
