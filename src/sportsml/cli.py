@@ -114,6 +114,7 @@ def cli():
             "cfb.sklearn.fit.date_column": cfb_features.DATE_COLUMN,
             "cfb.sklearn.fit.team_column": cfb_features.TEAM_COLUMN,
             "cfb.sklearn.fit.team_opp_column": cfb_features.TEAM_OPP_COLUMN,
+            "cbb.sklearn.fit.save_dir": "models/cbb",
             "cfb.sklearn.fit.print_metrics": True,
             "nba.download.output_file": "data/nba/raw.csv",
             "nba.process.games": "data/nba/raw.csv",
