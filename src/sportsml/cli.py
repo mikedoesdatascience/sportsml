@@ -15,6 +15,7 @@ from .nba.data import features as nba_features
 from .nba.data.download import download as nba_download
 from .nfl.data import features as nfl_features
 from .nfl.data.download import download as nfl_download
+from .utils.process import process
 
 jsonargparse.typing.register_type(
     pd.DataFrame, lambda x: getattr(x, "filename"), lambda x: pd.read_csv(x)
@@ -31,19 +32,23 @@ def cli():
         {
             "cbb": {
                 "download": cbb_download,
+                "process": process,
                 "pyg": {"fit": pyg_fit},
                 "sklearn": {"fit": train_sklearn},
             },
             "cfb": {
                 "download": cfb_download,
+                "process": process,
                 "sklearn": {"fit": train_sklearn},
             },
             "nba": {
                 "download": nba_download,
+                "process": process,
                 "sklearn": {"fit": train_sklearn},
             },
             "nfl": {
                 "download": nfl_download,
+                "process": process,
                 "sklearn": {"fit": train_sklearn},
             },
             "version": version,
@@ -51,8 +56,12 @@ def cli():
         as_positional=False,
         set_defaults={
             "cbb.download.output_file": "data/cbb/raw.csv",
+            "cbb.process.games": "data/cbb/raw.csv",
+            "cbb.process.stats_columns": cbb_features.GRAPH_STATS_COLUMNS,
+            "cbb.process.target_column": cbb_features.TARGET_COLUMN,
+            "cbb.process.output_file": "data/cbb/data.csv",
             "cbb.pyg.fit.datamodule": {
-                "games": "data/cbb/raw.csv",
+                "games": "data/cbb/data.csv",
                 "stats_columns": cbb_features.GRAPH_STATS_COLUMNS,
                 "target_column": cbb_features.TARGET_COLUMN,
                 "season_column": cbb_features.SEASON_COLUMN,
@@ -90,7 +99,11 @@ def cli():
             "cbb.sklearn.fit.team_opp_column": cbb_features.TEAM_OPP_COLUMN,
             "cbb.sklearn.fit.print_metrics": True,
             "cfb.download.output_file": "data/cfb/raw.csv",
-            "cfb.sklearn.fit.games": "data/cfb/raw.csv",
+            "cfb.process.games": "data/cfb/raw.csv",
+            "cfb.process.stats_columns": cfb_features.GRAPH_FEATURES,
+            "cfb.process.target_column": cfb_features.TARGET_COLUMN,
+            "cfb.process.output_file": "data/cfb/data.csv",
+            "cfb.sklearn.fit.games": "data/cfb/data.csv",
             "cfb.sklearn.fit.model": {
                 "class_path": "sklearn.ensemble.RandomForestRegressor"
             },
@@ -103,7 +116,11 @@ def cli():
             "cfb.sklearn.fit.team_opp_column": cfb_features.TEAM_OPP_COLUMN,
             "cfb.sklearn.fit.print_metrics": True,
             "nba.download.output_file": "data/nba/raw.csv",
-            "nba.sklearn.fit.games": "data/nba/raw.csv",
+            "nba.process.games": "data/nba/raw.csv",
+            "nba.process.stats_columns": nba_features.GRAPH_FEATURES,
+            "nba.process.target_column": nba_features.TARGET_COLUMN,
+            "nba.process.output_file": "data/nba/data.csv",
+            "nba.sklearn.fit.games": "data/nba/data.csv",
             "nba.sklearn.fit.model": {
                 "class_path": "sklearn.ensemble.RandomForestRegressor"
             },
@@ -116,7 +133,11 @@ def cli():
             "nba.sklearn.fit.team_opp_column": nba_features.TEAM_OPP_COLUMN,
             "nba.sklearn.fit.print_metrics": True,
             "nfl.download.output_file": "data/nfl/raw.csv",
-            "nfl.sklearn.fit.games": "data/nfl/raw.csv",
+            "nfl.process.games": "data/nfl/raw.csv",
+            "nfl.process.stats_columns": nfl_features.GRAPH_FEATURES,
+            "nfl.process.target_column": nfl_features.TARGET_COLUMN,
+            "nfl.process.output_file": "data/nfl/data.csv",
+            "nfl.sklearn.fit.games": "data/nfl/data.csv",
             "nfl.sklearn.fit.model": {
                 "class_path": "sklearn.ensemble.RandomForestRegressor"
             },
