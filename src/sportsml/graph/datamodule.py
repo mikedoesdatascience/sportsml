@@ -101,3 +101,11 @@ class GraphDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
         )
+
+    def get_latest_graph(self):
+        max_season_ds = self.train_ds
+        if self.val_ds and max(self.val_ds.dates)[0] > max(max_season_ds.dates)[0]:
+            max_season_ds = self.val_ds
+        if self.test_ds and max(self.test_ds.dates)[0] > max(max_season_ds.dates)[0]:
+            max_season_ds = self.test_ds
+        return max_season_ds.get_latest_graph()
