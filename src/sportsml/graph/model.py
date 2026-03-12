@@ -1,4 +1,8 @@
+from typing import Any
+
 import lightning.pytorch as pl
+import mlflow.pyfunc
+import pandas as pd
 import torch
 import torchmetrics
 
@@ -136,3 +140,29 @@ class GraphModel(pl.LightningModule):
         return super().load_from_checkpoint(
             checkpoint_path, weights_only=False, **kwargs
         )
+
+
+class SportsMLPredictor(mlflow.pyfunc.PythonModel):
+    def __init__(self, model: Any, team_embeddings: torch.Tensor):
+        self.model = model
+        self.team_embeddings = team_embeddings
+
+    def predict(self, model_input: pd.DataFrame) -> pd.DataFrame:
+        """
+        Generate predictions for team pairs.
+
+        Args:
+            context: MLFlow context (unused but required by PythonModel interface)
+            model_input: DataFrame with columns [team_id, team_opp_id] or similar.
+                        Column names should match what was used during training.
+                        Can also include: season, date for filtering team stats.
+
+        Returns:
+            pd.DataFrame of predictions (one per row in model_input)
+        """
+
+        edge_index = torch.from_numpy(model_input[['opp', 'team']].T.values).long()
+        
+        preds = self.model.predictor(self.team_embeddings, edge_index=edge_index)
+        result = model_input.assign(preds=preds.detach().numpy())
+        return result
