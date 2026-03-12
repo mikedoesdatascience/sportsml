@@ -70,6 +70,9 @@ def cli():
             "cbb.pyg.fit.model": {
                 "encoder": {
                     "class_path": "sportsml.graph.nn.encoder.mean.EdgeMean",
+                    "init_args": {
+                        "in_edge_channels": len(cbb_features.GRAPH_STATS_COLUMNS)
+                    }
                 },
                 "predictor": {
                     "in_dim": len(cbb_features.GRAPH_STATS_COLUMNS),
@@ -77,12 +80,13 @@ def cli():
                     "out_dim": 1,
                 },
             },
+            "cbb.pyg.fit.save_dir": "models/cbb/pyg",
             "cbb.pyg.fit.trainer": {
                 "devices": 1,
                 "max_epochs": 100,
                 "logger": MLFlowLogger("cbb", tracking_uri="sqlite:///mlflow.db"),
                 "callbacks": [
-                    EarlyStopping(monitor="val_loss", patience=50, mode="min"),
+                    EarlyStopping(monitor="val_loss", patience=10, mode="min"),
                     ModelCheckpoint(monitor="val_loss", mode="min"),
                 ]
             },
@@ -97,6 +101,7 @@ def cli():
             "cbb.sklearn.fit.date_column": cbb_features.DATE_COLUMN,
             "cbb.sklearn.fit.team_column": cbb_features.TEAM_COLUMN,
             "cbb.sklearn.fit.team_opp_column": cbb_features.TEAM_OPP_COLUMN,
+            "cbb.sklearn.fit.save_dir": "models/cbb/sklearn",
             "cbb.sklearn.fit.print_metrics": True,
             "cfb.download.output_file": "data/cfb/raw.csv",
             "cfb.process.games": "data/cfb/raw.csv",
@@ -114,7 +119,6 @@ def cli():
             "cfb.sklearn.fit.date_column": cfb_features.DATE_COLUMN,
             "cfb.sklearn.fit.team_column": cfb_features.TEAM_COLUMN,
             "cfb.sklearn.fit.team_opp_column": cfb_features.TEAM_OPP_COLUMN,
-            "cbb.sklearn.fit.save_dir": "models/cbb",
             "cfb.sklearn.fit.print_metrics": True,
             "nba.download.output_file": "data/nba/raw.csv",
             "nba.process.games": "data/nba/raw.csv",
