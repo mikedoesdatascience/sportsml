@@ -179,7 +179,7 @@ class SportsMLPredictor(mlflow.pyfunc.PythonModel):
         self.model = model
         self.team_features = team_features
 
-    def predict(self, model_input: pd.DataFrame) -> np.ndarray:
+    def predict(self, model_input: pd.DataFrame) -> pd.DataFrame:
         """
         Generate predictions for team pairs.
 
