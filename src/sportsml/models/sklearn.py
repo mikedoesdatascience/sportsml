@@ -179,6 +179,25 @@ class SportsMLPredictor(mlflow.pyfunc.PythonModel):
         self.model = model
         self.team_features = team_features
 
+    def long_to_wide(
+        self,
+        preds: pd.DataFrame,
+        prob: bool = False,
+        team_name_map: dict[int, str] = None,
+        sorted: bool = False,
+    ):
+        preds = preds.pivot_table(
+            values="prob" if prob else "preds", index="team", columns="opp"
+        )
+        if team_name_map:
+            preds = preds.rename(index=team_name_map, columns=team_name_map)
+        if sorted:
+            preds = preds.loc[
+                preds.mean(axis=0).sort_values().index,
+                preds.mean(axis=0).sort_values().index,
+            ]
+        return preds
+
     def predict(self, model_input: pd.DataFrame) -> pd.DataFrame:
         """
         Generate predictions for team pairs.
@@ -205,4 +224,5 @@ class SportsMLPredictor(mlflow.pyfunc.PythonModel):
         else:
             preds = self.model.predict(X)
             result = model_input.assign(preds=preds)
+        result['prob'] = scipy.stats.norm.cdf(result['preds'] / result['preds'].std())
         return result
