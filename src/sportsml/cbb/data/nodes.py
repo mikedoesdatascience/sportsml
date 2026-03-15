@@ -93,7 +93,7 @@ team_name_map = {
     91: "F Dickinson",
     92: "Fairfield",
     93: "FL Atlantic",
-    94: "FL Gulf Coast",
+    94: "FGCU",
     95: "Florida",
     96: "Florida A&M",
     97: "Florida Intl",
@@ -375,8 +375,11 @@ team_name_map = {
     373: "Queens NC",
     374: "Southern Indiana",
     375: "Stonehill",
-    376: "TX A&M Commerce",
+    376: "East Texas A&M",
     377: "Le Moyne",
+    378: "Mercyhurst",
+    379: "West Georgia",
+    380: "New Haven",
 }
 
 team_name_lookup = {v: k for k, v in team_name_map.items()}
