@@ -16,6 +16,8 @@ from .nba.data.download import download as nba_download
 from .nfl.data import features as nfl_features
 from .nfl.data.download import download as nfl_download
 from .utils.process import process
+from .wcbb.data import features as wcbb_features
+from .wcbb.data.download import download as wcbb_download
 
 jsonargparse.typing.register_type(
     pd.DataFrame, lambda x: getattr(x, "filename"), lambda x: pd.read_csv(x)
@@ -49,6 +51,12 @@ def cli():
             "nfl": {
                 "download": nfl_download,
                 "process": process,
+                "sklearn": {"fit": train_sklearn},
+            },
+            "wcbb": {
+                "download": wcbb_download,
+                "process": process,
+                "pyg": {"fit": pyg_fit},
                 "sklearn": {"fit": train_sklearn},
             },
             "version": version,
@@ -155,6 +163,54 @@ def cli():
             "nfl.sklearn.fit.team_column": nfl_features.TEAM_COLUMN,
             "nfl.sklearn.fit.team_opp_column": nfl_features.TEAM_OPP_COLUMN,
             "nfl.sklearn.fit.print_metrics": True,
+            "wcbb.download.output_file": "data/wcbb/raw.csv",
+            "wcbb.process.games": "data/wcbb/raw.csv",
+            "wcbb.process.stats_columns": wcbb_features.GRAPH_STATS_COLUMNS,
+            "wcbb.process.target_column": wcbb_features.TARGET_COLUMN,
+            "wcbb.process.output_file": "data/wcbb/data.csv",
+            "wcbb.pyg.fit.datamodule": {
+                "games": "data/wcbb/data.csv",
+                "stats_columns": wcbb_features.GRAPH_STATS_COLUMNS,
+                "target_column": wcbb_features.TARGET_COLUMN,
+                "season_column": wcbb_features.SEASON_COLUMN,
+                "date_column": wcbb_features.DATE_COLUMN,
+            },
+            "wcbb.pyg.fit.model": {
+                "encoder": {
+                    "class_path": "sportsml.graph.nn.encoder.mean.EdgeMean",
+                    "init_args": {
+                        "in_edge_channels": len(wcbb_features.GRAPH_STATS_COLUMNS)
+                    }
+                },
+                "predictor": {
+                    "in_dim": len(wcbb_features.GRAPH_STATS_COLUMNS),
+                    "hidden_dim": 300,
+                    "out_dim": 1,
+                },
+            },
+            "wcbb.pyg.fit.save_dir": "models/wcbb/pyg",
+            "wcbb.pyg.fit.trainer": {
+                "devices": 1,
+                "max_epochs": 100,
+                "logger": MLFlowLogger("wcbb", tracking_uri="sqlite:///mlflow.db"),
+                "callbacks": [
+                    EarlyStopping(monitor="val_loss", patience=10, mode="min"),
+                    ModelCheckpoint(monitor="val_loss", mode="min"),
+                ]
+            },
+            "wcbb.sklearn.fit.games": "data/wcbb/raw.csv",
+            "wcbb.sklearn.fit.model": {
+                "class_path": "sklearn.ensemble.RandomForestRegressor"
+            },
+            "wcbb.sklearn.fit.stats_columns": wcbb_features.STATS_COLUMNS,
+            "wcbb.sklearn.fit.categorical_columns": wcbb_features.CATEGORICAL_COLUMNS,
+            "wcbb.sklearn.fit.target_column": wcbb_features.TARGET_COLUMN,
+            "wcbb.sklearn.fit.season_column": wcbb_features.SEASON_COLUMN,
+            "wcbb.sklearn.fit.date_column": wcbb_features.DATE_COLUMN,
+            "wcbb.sklearn.fit.team_column": wcbb_features.TEAM_COLUMN,
+            "wcbb.sklearn.fit.team_opp_column": wcbb_features.TEAM_OPP_COLUMN,
+            "wcbb.sklearn.fit.save_dir": "models/wcbb/sklearn",
+            "wcbb.sklearn.fit.print_metrics": True,
         },
         parser_mode="omegaconf+",
     )
