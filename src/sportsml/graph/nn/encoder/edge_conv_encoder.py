@@ -122,6 +122,10 @@ class EdgeConvEncoder(nn.Module, HyperparametersMixin):
         self.save_hyperparameters()
         self.hparams["cls"] = self.__class__
 
+        # Normalises raw edge features (points, assists, etc.) to a common
+        # scale before any projection or pooling is applied.
+        self.edge_norm = nn.BatchNorm1d(edge_dim)
+
         # Projects mean-pooled edge attrs (season averages) → hidden_dim.
         self.node_init_proj = nn.Sequential(
             nn.Linear(edge_dim, hidden_dim),
@@ -150,6 +154,9 @@ class EdgeConvEncoder(nn.Module, HyperparametersMixin):
             Node embedding matrix of shape [N, out_dim].
         """
         n = int(edge_index.max().item()) + 1
+
+        # Normalise edge features once before any pooling or message passing.
+        edge_attr = self.edge_norm(edge_attr)
 
         # --- Initialise node features as season averages ---
         # Pool every edge attribute to both its source and destination node so
