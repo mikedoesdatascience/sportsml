@@ -7,6 +7,7 @@ import scipy.stats
 import torch
 import torchmetrics
 
+from .nn.encoder.edge_conv_encoder import EdgeConvEncoderLayer
 from .nn.encoder.edge_encoder import EdgeEncoder
 from .nn.encoder.mean import EdgeMean
 from .nn.predictor.ffn import EdgeFFN
@@ -15,7 +16,7 @@ from .nn.predictor.ffn import EdgeFFN
 class GraphModel(pl.LightningModule):
     def __init__(
         self,
-        encoder: EdgeEncoder | EdgeMean,
+        encoder: EdgeEncoder | EdgeMean | EdgeConvEncoderLayer,
         predictor: EdgeFFN,
         lr: float = 1e-3,
     ):
