@@ -159,11 +159,12 @@ class EdgeConvEncoder(nn.Module, HyperparametersMixin):
         edge_attr = self.edge_norm(edge_attr)
 
         # --- Initialise node features as season averages ---
-        # Pool every edge attribute to both its source and destination node so
-        # each team gets the mean of all box score stats across its games.
-        idx = torch.cat([edge_index[0], edge_index[1]], dim=0)
-        pooled_attr = torch.cat([edge_attr, edge_attr], dim=0)
-        x_init = scatter(pooled_attr, idx, dim=0, dim_size=n, reduce="mean")
+        # Pool every edge attribute to its destination (target) node so each
+        # team gets the mean of all box score stats from games played against
+        # them.  Since the graph is directed and each game is represented as
+        # two opposing directed edges, pooling to targets only avoids
+        # double-counting.
+        x_init = scatter(edge_attr, edge_index[1], dim=0, dim_size=n, reduce="mean")
         x = self.node_init_proj(x_init)  # [N, hidden_dim]
 
         # --- Iterative refinement with weight-shared convolution ---
