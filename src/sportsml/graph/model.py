@@ -7,7 +7,7 @@ import scipy.stats
 import torch
 import torchmetrics
 
-from .nn.encoder.edge_conv_encoder import EdgeConvEncoderLayer
+from .nn.encoder.edge_conv_encoder import EdgeConvEncoder
 from .nn.encoder.edge_encoder import EdgeEncoder
 from .nn.encoder.mean import EdgeMean
 from .nn.predictor.ffn import EdgeFFN
@@ -16,15 +16,19 @@ from .nn.predictor.ffn import EdgeFFN
 class GraphModel(pl.LightningModule):
     def __init__(
         self,
-        encoder: EdgeEncoder | EdgeMean | EdgeConvEncoderLayer,
+        encoder: EdgeEncoder | EdgeMean | EdgeConvEncoder,
         predictor: EdgeFFN,
         lr: float = 1e-3,
+        target_mean: float = 0.0,
+        target_std: float = 1.0,
     ):
         super().__init__()
         self.encoder = encoder
         self.predictor = predictor
 
         self.lr = lr
+        self.register_buffer("target_mean", torch.tensor(target_mean, dtype=torch.float32))
+        self.register_buffer("target_std", torch.tensor(target_std, dtype=torch.float32))
 
         regression_metrics = torchmetrics.MetricCollection(
             [
@@ -57,6 +61,8 @@ class GraphModel(pl.LightningModule):
             {
                 "encoder": encoder.hparams,
                 "predictor": predictor.hparams,
+                "target_mean": target_mean,
+                "target_std": target_std,
             }
         )
 
@@ -71,16 +77,18 @@ class GraphModel(pl.LightningModule):
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
 
-        loss = torch.nn.functional.mse_loss(preds, gp.y)
+        y_scaled = (gp.y - self.target_mean) / self.target_std
+        loss = torch.nn.functional.mse_loss(preds, y_scaled)
         self.log(
             "train_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges
         )
 
-        regression_metrics_output = self.train_regression_metrics(preds, gp.y)
+        preds_unscaled = preds * self.target_std + self.target_mean
+        regression_metrics_output = self.train_regression_metrics(preds_unscaled, gp.y)
         self.log_dict(regression_metrics_output, on_epoch=True, batch_size=gp.num_edges)
 
         classification_metrics_output = self.train_classification_metrics(
-            preds > 0, gp.y > 0
+            preds_unscaled > 0, gp.y > 0
         )
         self.log_dict(
             classification_metrics_output, on_epoch=True, batch_size=gp.num_edges
@@ -95,12 +103,14 @@ class GraphModel(pl.LightningModule):
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
 
-        loss = torch.nn.functional.mse_loss(preds, gp.y)
+        y_scaled = (gp.y - self.target_mean) / self.target_std
+        loss = torch.nn.functional.mse_loss(preds, y_scaled)
         self.log(
             "val_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges
         )
 
-        regression_metrics_output = self.val_regression_metrics(preds, gp.y)
+        preds_unscaled = preds * self.target_std + self.target_mean
+        regression_metrics_output = self.val_regression_metrics(preds_unscaled, gp.y)
         self.log_dict(
             regression_metrics_output,
             prog_bar=True,
@@ -109,7 +119,7 @@ class GraphModel(pl.LightningModule):
         )
 
         classification_metrics_output = self.val_classification_metrics(
-            preds > 0, gp.y > 0
+            preds_unscaled > 0, gp.y > 0
         )
         self.log_dict(
             classification_metrics_output,
@@ -125,12 +135,14 @@ class GraphModel(pl.LightningModule):
         x = self.encoder(edge_index=ge.edge_index, edge_attr=ge.edge_attr)
         preds = self.predictor(x, gp.edge_index)
 
-        loss = torch.nn.functional.mse_loss(preds, gp.y)
+        y_scaled = (gp.y - self.target_mean) / self.target_std
+        loss = torch.nn.functional.mse_loss(preds, y_scaled)
         self.log(
             "test_loss", loss, prog_bar=True, on_epoch=True, batch_size=gp.num_edges
         )
 
-        regression_metrics_output = self.test_regression_metrics(preds, gp.y)
+        preds_unscaled = preds * self.target_std + self.target_mean
+        regression_metrics_output = self.test_regression_metrics(preds_unscaled, gp.y)
         self.log_dict(
             regression_metrics_output,
             prog_bar=True,
@@ -139,7 +151,7 @@ class GraphModel(pl.LightningModule):
         )
 
         classification_metrics_output = self.test_classification_metrics(
-            preds > 0, gp.y > 0
+            preds_unscaled > 0, gp.y > 0
         )
         self.log_dict(
             classification_metrics_output,
@@ -187,7 +199,8 @@ class SportsMLPredictor(mlflow.pyfunc.PythonModel):
 
         edge_index = torch.from_numpy(model_input[["opp", "team"]].T.values).long()
 
-        preds = self.model.predictor(self.team_embeddings, edge_index=edge_index)
-        result = model_input.assign(preds=preds.detach().numpy())
+        preds_scaled = self.model.predictor(self.team_embeddings, edge_index=edge_index)
+        preds = (preds_scaled * self.model.target_std + self.model.target_mean).detach().numpy()
+        result = model_input.assign(preds=preds)
         result["prob"] = scipy.stats.norm.cdf(result["preds"] / result["preds"].std())
         return result
