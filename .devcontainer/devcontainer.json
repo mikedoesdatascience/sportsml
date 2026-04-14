@@ -1,0 +1,9 @@
+{
+  "name": "sportsml",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers-extra/features/uv:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "echo \"alias ltr='ls -lhtr'\" >> ~/.bash_aliases"
+}

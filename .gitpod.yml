@@ -1,9 +1,0 @@
-tasks:
-  - name: Setup dev environment
-    init: |
-      alias ltr='ls -lhtr'
-      echo "alias ltr='ls -lhtr'" >> ~/.bashrc
-      export PATH=/workspace/.pyenv_mirror/user/current/bin/:$PATH
-      echo "export PATH=/workspace/.pyenv_mirror/user/current/bin/:$PATH" >> ~/.bashrc
-      python -m pip install -U pip
-      python -m pip install bump2version black build twine

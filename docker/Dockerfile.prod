@@ -1,9 +1,19 @@
-FROM python:3.10
+FROM python:3.11-slim as base
 
-RUN python -m pip install -U pip
+ARG PLATFORM cpu
 
-COPY python/requirements.lock /tmp/requirements.lock
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=requirements.${PLATFORM}.lock,target=requirements.${PLATFORM}.lock \
+    python -m pip install -U uv && \
+    python -m uv pip install -U --system \
+    --extra-index-url https://download.pytorch.org/whl/${PLATFORM} \
+    -r requirements.${PLATFORM}.lock
 
-RUN python -m pip install -U --no-cache-dir -r /tmp/requirements.lock && \
-    rm /tmp/requirements.lock && \
-    python -m pip install -U --no-cache-dir sportsml
+
+FROM base
+
+ARG VERSION
+
+RUN python -m uv pip install --system --no-deps sportsml==$VERSION
+ENV DGLBACKEND=pytorch

@@ -137,9 +137,21 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+notebooks/data
 notebooks/models
 
 /data
 
-outputs
+/outputs
+/multirun
 mlruns
+mlflow.db
+
+lightning_logs
+notebooks/lightning_logs
+
+models/
+
+*.csv
+*.ckpt
+*.tar.gz

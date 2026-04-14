@@ -144,3 +144,5 @@ notebooks/data
 
 outputs
 mlruns
+
+src/sportsml/_version.py
