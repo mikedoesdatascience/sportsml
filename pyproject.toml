@@ -30,6 +30,10 @@ dependencies = [
     "seaborn",
     "torch_geometric",
     "torchmetrics",
+    "umap-learn",
+    "wandb>=0.25.1",
+    "weave>=0.52.36",
+    "sbrscrape>=0.0.12",
 ]
 
 [project.scripts]
