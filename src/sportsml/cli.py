@@ -77,14 +77,17 @@ def cli():
             },
             "cbb.pyg.fit.model": {
                 "encoder": {
-                    "class_path": "sportsml.graph.nn.encoder.mean.EdgeMean",
+                    "class_path": "sportsml.graph.nn.encoder.edge_conv_encoder.EdgeConvEncoder",
                     "init_args": {
-                        "in_edge_channels": len(cbb_features.GRAPH_STATS_COLUMNS)
-                    }
+                        "edge_dim": len(cbb_features.GRAPH_STATS_COLUMNS),
+                        "hidden_dim": 300,
+                        "out_dim": 100,
+                        "num_layers": 10,
+                    },
                 },
                 "predictor": {
-                    "in_dim": len(cbb_features.GRAPH_STATS_COLUMNS),
-                    "hidden_dim": 300,
+                    "in_dim": 100,
+                    "hidden_dim": 100,
                     "out_dim": 1,
                 },
             },
@@ -96,7 +99,7 @@ def cli():
                 "callbacks": [
                     EarlyStopping(monitor="val_loss", patience=10, mode="min"),
                     ModelCheckpoint(monitor="val_loss", mode="min"),
-                ]
+                ],
             },
             "cbb.sklearn.fit.games": "data/cbb/raw.csv",
             "cbb.sklearn.fit.model": {
@@ -177,14 +180,17 @@ def cli():
             },
             "wcbb.pyg.fit.model": {
                 "encoder": {
-                    "class_path": "sportsml.graph.nn.encoder.mean.EdgeMean",
+                    "class_path": "sportsml.graph.nn.encoder.edge_conv_encoder.EdgeConvEncoder",
                     "init_args": {
-                        "in_edge_channels": len(wcbb_features.GRAPH_STATS_COLUMNS)
-                    }
+                        "edge_dim": len(wcbb_features.GRAPH_STATS_COLUMNS),
+                        "hidden_dim": 128,
+                        "out_dim": 64,
+                        "num_layers": 5,
+                    },
                 },
                 "predictor": {
-                    "in_dim": len(wcbb_features.GRAPH_STATS_COLUMNS),
-                    "hidden_dim": 300,
+                    "in_dim": 64,
+                    "hidden_dim": 64,
                     "out_dim": 1,
                 },
             },
@@ -196,7 +202,7 @@ def cli():
                 "callbacks": [
                     EarlyStopping(monitor="val_loss", patience=10, mode="min"),
                     ModelCheckpoint(monitor="val_loss", mode="min"),
-                ]
+                ],
             },
             "wcbb.sklearn.fit.games": "data/wcbb/raw.csv",
             "wcbb.sklearn.fit.model": {

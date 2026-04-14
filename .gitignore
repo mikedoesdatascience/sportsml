@@ -149,3 +149,9 @@ mlflow.db
 
 lightning_logs
 notebooks/lightning_logs
+
+models/
+
+*.csv
+*.ckpt
+*.tar.gz

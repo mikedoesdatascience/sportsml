@@ -36,9 +36,12 @@ class GraphDataModule(pl.LightningDataModule):
 
         if set(train_seasons) & set(val_seasons):
             raise ValueError("Train and validation seasons overlap")
-        
+
         train_games = games[games[season_column].isin(train_seasons)]
         val_games = games[games[season_column].isin(val_seasons)]
+
+        self.target_mean = float(train_games[target_column].mean())
+        self.target_std = float(train_games[target_column].std())
 
         self.train_ds = GraphDataset(
             games=train_games,
